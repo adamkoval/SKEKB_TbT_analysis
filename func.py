@@ -7,7 +7,7 @@ from subprocess import Popen
 import time
 
 # ====================================================
-# To be used in get_bpm_data.py
+# To be used in complete_analysis.py
 # ====================================================
 def look_for_dict(file_dict):
     """
