@@ -6,11 +6,11 @@ Package used for analysing Turn-by-Turn data from the SuperKEKB accelerator usin
 **Prerequisites**:
 
 * Python2.7 with the following packges installed:
-	+ numpy==1.15.0 (importnat! 1.16.x causes problems for Beta-Beat.src)\n
-	+ pandas==0.24.2\n
-	+ scipy==1.2.1\n
-	+ matplotlib==2.2.4\n
-	+ tkinter==8.6\n
+	+ numpy==1.15.0 (importnat! 1.16.x causes problems for Beta-Beat.src)
+	+ pandas==0.24.2
+	+ scipy==1.2.1
+	+ matplotlib==2.2.4
+	+ tkinter==8.6
 	+ NOTE: As the present package does not make use of Beta-Beat.src's graphical functions, it is possible to run it without prior installation of matplotlib and tkinter, see "matplotlib/Tkinter workaround" section.
 * Beta-Beat.src package - https://github.com/pylhc/Beta-Beat.src.
 * Strategic Accelerator Design (SAD) - https://github.com/KatsOide/SAD - see "SAD installation" section for install instructions.
