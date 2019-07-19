@@ -53,7 +53,7 @@ where "a <- b" means that *b* depeds on *a*.
 
 Note also, that *-pa1* and *-pa2* may be used at will, but only once their respective phase analyses, *-p1* and *-p2*, have completed.
 
-To illustrate the use of the command line arguments, one may call:
+To illustrate the use of the command line arguments, one may call, in order:
 
 	1) "python2 complete\_analysis.py -h1 -p1"
 	2) "python2 complete\_analysis.py -aa"
