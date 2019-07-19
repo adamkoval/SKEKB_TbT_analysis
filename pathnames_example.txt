@@ -32,7 +32,7 @@ kickax = y
 #
 # For BetaBeat.src
 #
-BetaBeatsrc_path = /home/akoval/work_local/git/Beta-Beat.src/
+BetaBeatsrc_path = /nfs/sadnas1a/users/lzuyangrj/Kmodu/Adam/Beta-Beat.src/
 model_path = model/
 #
 # For main code
@@ -44,5 +44,5 @@ file_dict = file_dict_example.txt
 #
 # Executables
 #
-gsad = /home/akoval/SAD/oldsad/bin/gs
+gsad = /SAD/bin/gs -env skekb
 python_exe = python2

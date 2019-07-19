@@ -1,0 +1,49 @@
+# ======================================================================= 
+# EDIT THIS FILE ACCORDING TO NEED
+# ringID: Name of the ring which you will be using "HER" or "LER".
+# lattice_dir: Path of the SAD lattice you will be using.
+# model_dir: Directory containing accelerator model information for
+#	     Beta-Beat.src scripts.
+# ftwissbpm: <Renjun>
+# ftwissall: <Renjun>
+# fkmodu: <Renjun>
+# output_dir: Directory into which all final and intermediate output
+#	      will be placed.
+# temp_dir: Where results will temporarily be stored while the program
+#	    runs.
+# harmonic_output_dir: Path to the desired directory into which the
+#		       output of hole_in_one.py will be placed.
+# phase_output_dir: Path to the desired directory into which the 
+#		    output of measure_optics.py will be placed.
+# data_input_dir: Path to the directory containing KEK datafiles.
+# gsad: Path to the SAD executable.
+# python_exe: Path to the python executable.
+# BetaBeatsrcPath: Path to the Beta-Beat.src package.
+# file_dict: File which contains translations from KEK datafiles to
+#	     desired sdds names.
+# =======================================================================
+#
+# From machine study
+#
+nturns = 2000
+ringID = HER
+lattice = lattice/example_lattice.sad
+input_data_path = input_data_example/
+kickax = y
+#
+# For BetaBeat.src
+#
+BetaBeatsrc_path = /nfs/sadnas1a/users/lzuyangrj/Kmodu/Adam/Beta-Beat.src/
+model_path = model/
+#
+# For main code
+#
+main_output_path = output_example/
+unsynched_sdds_path = unsynched_sdds_example/
+synched_sdds_path = synched_sdds_example/
+file_dict = file_dict_example.txt
+#
+# Executables
+#
+gsad = /SAD/bin/gs -env skekb
+python_exe = python2

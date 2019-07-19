@@ -135,7 +135,7 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
         # Checking if it is empty
         if os.listdir(sdds_dir):
             while True:
-                user_input = raw_input('Unsynched sdds (temp) directory contains files. Would you like to clean the directory and start anew (options: yes, no, show contents)?\n')
+                user_input = raw_input(sdds_dir + ' directory contains files. Would you like to clean the directory and start from scratch? (options: yes, no, show contents)\n')
                 if user_input == 'yes':
                     os.system('rm -r ' + sdds_dir + '*')
                     do_stuff()
