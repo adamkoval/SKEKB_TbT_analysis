@@ -12,24 +12,33 @@ from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, a
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--debug', '-db',
-                    action='store_true')
+                    action='store_true',
+                    help='Debug option. Only runs for 2 files as opposed to all.')
 parser.add_argument('--pathnames',
                     action='store',
-                    dest='pathnames')
+                    dest='pathnames',
+                    help='Path to pathnames.txt file, which contains all other paths necessary for this script.')
 parser.add_argument('--harmonic1', '-h1',
-                    action='store_true')
+                    action='store_true',
+                    help='Harmonic analysis; without knowledge of BPM synch. This is enough to obtain tunes.')
 parser.add_argument('--phase1', '-p1',
-                    action='store_true')
-parser.add_argument('--asynch', '-a',
-                    action='store_true')
+                    action='store_true',
+                    help='Phase analysis of harmonic1 output without BPM synch knowledge.')
 parser.add_argument('--plotasynch1', '-pa1',
-                    action='store_true')
+                    action='store_true',
+                    help='Plotting of BPM synchronisation from phase1 output, before synch fix is applied.')
+parser.add_argument('--asynch', '-aa',
+                    action='store_true',
+                    help='Analysis of BPM synchronisation from phase1 output.')
 parser.add_argument('--harmonic2', '-h2',
-                    action='store_true')
+                    action='store_true',
+                    help='sdds conversion and harmonic analysis with knowledge of BPM synch.')
 parser.add_argument('--phase2', '-p2',
-                    action='store_true')
+                    action='store_true',
+                    help='Phase analysis of harmonic2 output with knowledge of BPM synch.')
 parser.add_argument('--plotasynch2', '-pa2',
-                    action='store_true')
+                    action='store_true',
+                    help='Plotting of BPM synchronisation from phase2 output, after synch fix is applied.')
 args = parser.parse_args()
 
 # Read in destinations

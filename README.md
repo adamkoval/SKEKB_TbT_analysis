@@ -1,6 +1,7 @@
 # SKEKB\_TbT\_analysis
 Package used for analysing Turn-by-Turn data from the SuperKEKB accelerator using tools developed by the CERN OMC team.
 
+
 # Quick start guide
 1) Prerequisites:
 	* Beta-Beat.src package - https://github.com/pylhc/Beta-Beat.src.
@@ -21,7 +22,7 @@ Things to keep in mind:
 
 3) Run "python2 complete\_analysis.py --help" to see possible command line arguments.
 
-4) Run again with desired command line arguments.
+4) Run again with desired command line arguments (see "Calling main script" section).
 
 5) All output is directed into the directory defined in "main\_output\_path" variable in pathnames.txt.
 
@@ -29,6 +30,7 @@ Things to keep in mind:
 # matplotlib/Tkinter workaround
 - Comment out line 48 in the file Beta-Beat.src/twis\_optics/optics\_class.py. The line reads "from plotshop import plot\_style as pstyle". 
 - Please note, this will likely compromise other functions of the Beta-Beat.src package. Should the user wish to step outside of the scope of the present package, they should install matplotlib and tkinter, and other required packages.
+
 
 # SAD installation 
 # (Linux Debian)
@@ -40,3 +42,27 @@ Things to keep in mind:
 6) Run "sudo make all".
 # (Windows WSL)
 1) Same as above, but I encountered the issue of not having the yacc compiler installed. If this is the case, run "sudo apt-get install bison", which includes yacc.
+
+
+# Calling main script
+Arguments must be applied all at once, or in separate calls of the "complete\_analysis.py" script in the order:
+
+	 -h1, -p1, -aa, -h2, -p2. 
+
+-pa1 and -pa2 may be used at will, but only once their respective phase analyses (-p1 & -p2) have completed.
+
+To illustrate the use of the command line arguments, one may call:
+	1) "python2 complete\_analysis.py -h1 -p1"
+	2) "python2 complete\_analysis.py -aa"
+	3) "python2 complete\_analysis.py -h2"
+	4) "python2 complete\_analysis.py -pa1 -p2"
+OR:
+	1) "python2 complete\_analysis.py -h1"
+	2) "python2 complete\_analysis.py -p1"
+	3) "python2 complete\_analysis.py -p2 -h2 -aa -pa2"
+OR:
+	1) "python2 complete\_analysis.py -h1 -h2 -p2 -pa1 -pa2 -p1 -aa"
+
+I.e., order doesn't matter as long as all arguments dependent on each other are called together.
+
+Additionally, please note that -pa1 & -pa2 utilise matplotlib and possibly also Tkinter, in case the workaround (see "matplotlib/Tkinter workaround") has been applied.

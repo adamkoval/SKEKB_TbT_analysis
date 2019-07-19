@@ -1,26 +1,25 @@
 # ======================================================================= 
 # EDIT THIS FILE ACCORDING TO NEED
-# ringID: Name of the ring which you will be using "HER" or "LER".
-# lattice_dir: Path of the SAD lattice you will be using.
-# model_dir: Directory containing accelerator model information for
-#	     Beta-Beat.src scripts.
-# ftwissbpm: <Renjun>
-# ftwissall: <Renjun>
-# fkmodu: <Renjun>
-# output_dir: Directory into which all final and intermediate output
-#	      will be placed.
-# temp_dir: Where results will temporarily be stored while the program
-#	    runs.
-# harmonic_output_dir: Path to the desired directory into which the
-#		       output of hole_in_one.py will be placed.
-# phase_output_dir: Path to the desired directory into which the 
-#		    output of measure_optics.py will be placed.
-# data_input_dir: Path to the directory containing KEK datafiles.
+# nturns: Number of turns taken in measurement. Passed to harmonic analysis.
+# ringID: Name of the ring used for TbT acquisition, "HER" or "LER".
+# lattice: Path of the SAD lattice you will be using.
+# input_data_path: Path to directory containing KEK TbT data files.
+# kickax: Used in asynch analysis to determine which axis to analyse.
+#		  Generally, the axis in which kicks are applied has cleaner
+#		  data which is more suitable for analysis.
+# BetaBeatsrc_path: Path to the Beta-Beat.src package.
+# model_path: Directory containing accelerator model information for
+#	     	  Beta-Beat.src scripts.
+# main_output_path: Directory into which all output (not sdds files)
+#	      			will be placed.
+# unsynched_sdds_path: Where sdds files in the first stage (without
+#	    			   asynch fix) will be stored.
+# synched_sdds_path: Where sdds files in the second stage (with asynch
+#					 fix) will be stored.
+# file_dict: File which contains translations from KEK datafiles to
+#	     	 desired sdds names.
 # gsad: Path to the SAD executable.
 # python_exe: Path to the python executable.
-# BetaBeatsrcPath: Path to the Beta-Beat.src package.
-# file_dict: File which contains translations from KEK datafiles to
-#	     desired sdds names.
 # =======================================================================
 #
 # From machine study
