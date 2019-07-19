@@ -70,6 +70,6 @@ OR:
 
 	1) "python2 complete\_analysis.py -h1 -h2 -p2 -pa1 -pa2 -p1 -aa"
 
-I.e., order doesn't matter as long as all arguments dependent on each other are called together.
+I.e., order of arguments within command line call doesn't matter, as long as all arguments dependent on each other are called together.
 
 Additionally, please note that *-pa1* & *-pa2* utilise matplotlib and possibly also Tkinter, in case the workaround (see "matplotlib/Tkinter workaround") has been applied.
