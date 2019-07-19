@@ -34,7 +34,7 @@ def read_pathnames(pathnames):
     pathnames = {}
     for line in lines:
         line = line.split()
-        pathnames[line[0]] = line[-1]
+        pathnames[line[0]] = ' '.join(line[2:])
 
     return pathnames
 
