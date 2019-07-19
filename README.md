@@ -4,6 +4,7 @@ Package used for analysing Turn-by-Turn data from the SuperKEKB accelerator usin
 
 # Quick start guide
 **Prerequisites**:
+
 	* Beta-Beat.src package - https://github.com/pylhc/Beta-Beat.src.
 	* Python2.7 with the following packges installed:
 		+ numpy==1.15.0 (importnat! 1.16.x causes problems for Beta-Beat.src)\n
