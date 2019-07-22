@@ -2,7 +2,7 @@
 Package used for analysing Turn-by-Turn data from the SuperKEKB accelerator using tools developed by the CERN OMC team.
 
 
-# Quick start guide
+# I. Quick start guide
 **Prerequisites**:
 
 * Python2.7 with the following packges installed:
@@ -28,12 +28,12 @@ Things to keep in mind:
 5) All output is directed into the directory defined in "main\_output\_path" variable in *pathnames.txt*.
 
 
-# matplotlib/Tkinter workaround
+# II. matplotlib/Tkinter workaround
 - Comment out line 48 in the file *Beta-Beat.src/twis\_optics/optics\_class.py*. The line reads "from plotshop import plot\_style as pstyle". 
 - Please note, this will likely compromise other functions of the Beta-Beat.src package. Should the user wish to step outside of the scope of the present package, they should install matplotlib and tkinter, and other required packages.
 
 
-# SAD installation 
+# III. SAD installation 
 # (Linux Debian)
 1) Follow instructions on "https://github.com/KatsOide/SAD/blob/master/INSTALL", or follow below.
 2) Clone repo and "cd" into it.
@@ -45,7 +45,7 @@ Things to keep in mind:
 1) Same as above, but I encountered the issue of not having the *yacc* compiler installed. If this is the case, run "sudo apt-get install bison", which includes yacc.
 
 
-# Calling main script
+# IV. Calling main script
 Arguments must be applied all at once, or in separate calls of the "complete\_analysis.py" script in the order:
 
 	 -h1 <- -p1 <- -aa <- -h2 <- -p2,
