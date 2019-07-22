@@ -1,17 +1,27 @@
-/*
-
-# Include
-!async.py
-!checkBPMs_colormap.py
-!checkBPMs_schematic.py
-!cmap.txt
-!complete_analysis.py
-!func.py
-!func.n
+# Input
+input_data*/
 !input_data_example/
-!lattice/
-!model/
+
+# Output
+output*/
+!output_example/
+unsynched_sdds*/
+synched_sdds*/
+tune_guess.txt
+
+# Supporting files
+file_dict*.txt
+pathnames*.txt
 !pathnames_example.txt
-!README.md
-!CHANGELOG.md
-!.gitignore
+
+# Generated SAD files
+run.sad
+prerun.sad
+tune_info.sad
+
+# Misc
+__pycache__/
+*~
+*.swp
+*.swo
+*.pyc

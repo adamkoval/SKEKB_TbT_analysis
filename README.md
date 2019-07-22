@@ -56,20 +56,20 @@ Note also, that *-pa1* and *-pa2* may be used at will, but only once their respe
 
 To illustrate the use of the command line arguments, one may call, in order:
 
-	1) "python2 complete\_analysis.py -h1 -p1"
-	2) "python2 complete\_analysis.py -aa"
-	3) "python2 complete\_analysis.py -h2"
-	4) "python2 complete\_analysis.py -pa1 -p2"
+	1) "python2 complete\_analysis.py --pathnames pathnames.txt -h1 -p1"
+	2) "python2 complete\_analysis.py --pathnames pathnames.txt -aa"
+	3) "python2 complete\_analysis.py --pathnames pathnames.txt -h2"
+	4) "python2 complete\_analysis.py --pathnames pathnames.txt -pa1 -p2"
 
 OR:
 
-	1) "python2 complete\_analysis.py -h1"
-	2) "python2 complete\_analysis.py -p1"
-	3) "python2 complete\_analysis.py -p2 -h2 -aa -pa2"
+	1) "python2 complete\_analysis.py --pathnames pathnames.txt -h1"
+	2) "python2 complete\_analysis.py --pathnames pathnames.txt -p1"
+	3) "python2 complete\_analysis.py --pathnames pathnames.txt -p2 -h2 -aa -pa2"
 
 OR:
 
-	1) "python2 complete\_analysis.py -h1 -h2 -p2 -pa1 -pa2 -p1 -aa"
+	1) "python2 complete\_analysis.py --pathnames pathnames.txt -h1 -h2 -p2 -pa1 -pa2 -p1 -aa"
 
 I.e., order of arguments within command line call doesn't matter, as long as all arguments dependent on each other are called together.
 

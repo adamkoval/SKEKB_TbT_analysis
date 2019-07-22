@@ -1,0 +1,23 @@
+@ Measure_optics:version %s "0.2.0"
+@ Command %s "/usr/bin/python2 '/home/akoval/work_local/git/Beta-Beat.src/measure_optics.py' '--model' 'model/' '--accel' 'skekb' '--files' 'output_example/synched_harmonic_output/HER_2019_05_20_18_30_09.sdds' '--output' 'output_example/synched_phase_output/HER_2019_05_20_18_30_09.sdds/'"
+@ CWD %s "/home/akoval/work_afs/job3_Paul_Andreas_bbeating_tracking/git/SKEKB_TbT_analysis"
+@ Date %s "22. July 2019, 10:50:33"
+@ Model_directory %s "model/"
+@ FILENAME %s "getcoupleterms.out"
+@ DQMIN %le -1.0
+@ DQMINE %le 1.48323969742e-08
+*                 NAME                    S                 DETC                DETCE                GAMMA               GAMMAE                  C11                  C12                  C21                  C22
+$                   %s                  %le                  %le                  %le                  %le                  %le                  %le                  %le                  %le                  %le
+                MQC2LE            2.2500008                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+                MQD3E1          164.5639584                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+                MQEAE4          230.8020191                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+              MQTATNE1          354.4092937                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+              MQTATNE2          397.7476034                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+                MQEAE8          472.7108711                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+                MQD3E8          511.9225329                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+               MQEAE11          597.0252838                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+               MQEAE16          983.8943327                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+              MQTANFE1         1107.5016074                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+               MQD3E16         1189.3444407                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+                 MQI6E         1404.3012987                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
+               MQEAE44         2735.3901425                  nan                   -1                   -1                   -1                   -1                   -1                   -1                   -1
