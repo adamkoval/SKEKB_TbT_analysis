@@ -4,7 +4,6 @@ input_data*/
 
 # Output
 output*/
-!output_example/
 unsynched_sdds*/
 synched_sdds*/
 tune_guess.txt
