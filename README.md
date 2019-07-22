@@ -29,7 +29,7 @@ Things to keep in mind:
 
 
 # II. matplotlib/Tkinter workaround
-- Comment out line 48 in the file *Beta-Beat.src/twis\_optics/optics\_class.py*. The line reads "from plotshop import plot\_style as pstyle". 
+- Comment out line 48 in the file *Beta-Beat.src/twiss\_optics/optics\_class.py*. The line reads "from plotshop import plot\_style as pstyle". 
 - Please note, this will likely compromise other functions of the Beta-Beat.src package. Should the user wish to step outside of the scope of the present package, they should install matplotlib and tkinter, and other required packages.
 
 
