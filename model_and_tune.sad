@@ -1,0 +1,20 @@
+FFS;
+
+GetMAIN["lattice/Andreas_lattice.sad"];
+USE ASCE;
+CELL;
+CALC;
+emit;
+
+Get["func.n"];
+
+fn1 = "model/twiss.dat";
+fn2 = "model/twiss_elements.dat";
+SaveTwiss[fn1, fn2];
+
+file = OpenWrite["tune_guess.txt"];
+WriteString[file, "Qx = ", Twiss["nx", $$$]/(2*Pi), "\n"];
+WriteString[file, "Qy = ", Twiss["ny", $$$]/(2*Pi), "\n"];
+Close[file];
+
+abort;
