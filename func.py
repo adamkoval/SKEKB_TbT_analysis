@@ -298,7 +298,8 @@ def phase_analysis(python_exe, BetaBeatsrc_path, model_path,
     if group_flag == True:
         grouped_files = group_runs(sdds_files)
         for i, group in enumerate(grouped_files):
-            group_s = ', '.join([harmonic_output_path+j for j in grouped_files[group]])
+            group_s = ','.join([harmonic_output_path+j for j in grouped_files[group]])
+            print(group_s)
             start = time.time()
             print(" ********************************************\n",
                   "phase analysis:\n",
