@@ -88,7 +88,7 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
     """
     def do_stuff():
         if debug == True:
-            loopend = '2'
+            loopend = '6'
         else:
             loopend = 'Length[runs]'
         if asynch_info == False:
@@ -170,19 +170,29 @@ def get_LINE(lattice, gsad):
     return LINE
 
 
-def guess_tune(lattice, gsad):
+def makemodel_and_guesstune(model_path, lattice, gsad):
     """
-    Function generates and executes SAD script to obtain initial
-    guesses for x & y tunes.
+    Function which creates a model for BetaBeat.src analysis and
+    generates and executes SAD script to obtain initial guesses
+    for x & y tunes.
     """
-    LINE = get_LINE(lattice, gsad) 
-    fn = 'tune_info.sad'
+    LINE = get_LINE(lattice, gsad)
+    if not os.path.exists(model_path):
+        os.system('mkdir ' + model_path)
+    else:
+        pass
+    fn = 'model_and_tune.sad'
     file = open(fn, "w")
     file.write('FFS;\n\n'
                'GetMAIN["' + lattice + '"];\n'
                'USE ' + LINE + ';\n'
                'CELL;\n'
-               'CALC;\n\n'
+               'CALC;\n'
+               'emit;\n\n'
+               'Get["func.n"];\n\n'
+               'fn1 = "' + model_path + 'twiss.dat";\n'
+               'fn2 = "' + model_path + 'twiss_elements.dat";\n'
+               'SaveTwiss[fn1, fn2];\n\n'
                'file = OpenWrite["tune_guess.txt"];\n'
                'WriteString[file, "Qx = ", Twiss["nx", $$$]/(2*Pi), "\\n"];\n'
                'WriteString[file, "Qy = ", Twiss["ny", $$$]/(2*Pi), "\\n"];\n'
@@ -192,8 +202,8 @@ def guess_tune(lattice, gsad):
     file.close()
     os.system(gsad + ' ' + fn)
     return print(" ********************************************\n",
-                 "guess_tunes:\n",
-                 '"' + fn + ' finished, tune guesses are written to tune_guess.txt."\n',
+                 "makemodel_and_guesstunes:\n",
+                 '"' + fn + ' finished, model is ready in ' + model_path + ' and tune guesses are written to tune_guess.txt."\n',
                  "********************************************")
 
 
@@ -203,17 +213,13 @@ def harmonic_analysis(python_exe, BetaBeatsrc_path, model_path,
     """
     Function to call hole_in_one.py script from BetaBeat.src.
     """
-    guess_tune(lattice, gsad)
+    makemodel_and_guesstune(model_path, lattice, gsad)
     with open('tune_guess.txt') as f:
         lines = f.readlines()
     model_tunex = lines[0].split()[2]
     model_tuney = lines[1].split()[2]
     model_tunex = '0.' + re.match('[0-9]+\.([0-9]+)', model_tunex).group(1)
     model_tuney = '0.' + re.match('[0-9]+\.([0-9]+)', model_tuney).group(1)
-#    model_tunex = str('{:.3g}'.format(float('0.' + re.match('[0-9]+\.([0-9]+)', model_tunex).group(1))))
-#    model_tuney = str('{:.3g}'.format(float('0.' + re.match('[0-9]+\.([0-9]+)', model_tuney).group(1))))
-#    model_tunex = '{:.3g}'.format(model_tunex)
-#    model_tuney = '{:.3g}'.format(model_tuney)
     if not os.path.exists(harmonic_output_path):
         os.system('mkdir ' + harmonic_output_path)
     sdds_files = os.listdir(sdds_path)
@@ -240,15 +246,34 @@ def harmonic_analysis(python_exe, BetaBeatsrc_path, model_path,
                    '--tune_clean_limit=1e-4']) # changed from 1e-5 to 10e-5 so that fewer BPMs are cleaned
         p.wait()
         finish = time.time() - start
-        timer(i, len(sdds_files), finish)
+        timer('Harmonic analysis', i, len(sdds_files), finish)
     return print(" ********************************************\n",
                  "harmonic analysis:\n",
                  '"Harmonic analysis finished."\n',
                  "********************************************")
 
 
+def group_runs(files):
+    """
+    Groups repeated measurements at the same setting for use in phase_analysis().
+    """
+    all_groups = {}
+    oldsetting = re.match('(\S*)\_[0-9]+\.sdds', files[0]).group(1)
+    group = [files[0]]
+    for file in files[1:]:
+        setting = re.match('(\S*)\_[0-9]+\.sdds', file).group(1)
+        if setting == oldsetting:
+            group.append(file)
+            oldsetting = setting
+        else:
+            all_groups[oldsetting] = group
+            group = [file]
+            oldsetting = setting
+    return all_groups
+
+
 def phase_analysis(python_exe, BetaBeatsrc_path, model_path,
-                   harmonic_output_path, phase_output_path, sdds_path):
+                   harmonic_output_path, phase_output_path, sdds_path, group_flag):
     """
     Function to call measure_optics.py script from BetaBeat.src.
     """
@@ -269,7 +294,25 @@ def phase_analysis(python_exe, BetaBeatsrc_path, model_path,
                    '--output', phase_output_path + run + '/'])
         p.wait()
         finish = time.time() - start
-        timer(i, len(sdds_files), finish)
+        timer('Phase analysis [single]', i, len(sdds_files), finish)
+    if group_flag == True:
+        grouped_files = group_runs(sdds_files)
+        for i, group in enumerate(grouped_files):
+            group_s = ', '.join([harmonic_output_path+j for j in grouped_files[group]])
+            start = time.time()
+            print(" ********************************************\n",
+                  "phase analysis:\n",
+                  '"Working on group ' + str(i) + '/' + str(len(grouped_files)) + ': ' + str(group) + '"\n',
+                  "********************************************")
+            p = Popen([python_exe,
+                       BetaBeatsrc_path + 'measure_optics.py',
+                       '--model', model_path,
+                       '--accel', 'skekb',
+                       '--files', group_s,
+                       '--output', phase_output_path + group + '_avg/'])
+            p.wait()
+            finish = time.time() - start
+            timer('Phase analysis [average]', i, len(sdds_files), finish)
     return print(" ********************************************\n",
                  "phase analysis:\n",
                  '"Phase analysis finished."\n',
@@ -465,7 +508,7 @@ def get_data_column(phase_output_dir, folder, data, column):
 # To be used in run_BetaBeatsrc.py
 # ====================================================
 
-def timer(i_current, i_total, time_i):
+def timer(func_name, i_current, i_total, time_i):
     """
     Estimates how long until analysis complete.
     """
@@ -476,15 +519,8 @@ def timer(i_current, i_total, time_i):
     return print(" #####################################################\n",
                  "TIMER TIMER TIMER TIMER TIMER TIMER TIMER TIMER TIMER\n",
                  "\n",
+                 "(", func_name, ")\n"
                  "Approximate time remaining: ", str(minutes), "m" + str(seconds) + "s\n",
                  "\n",
                  "TIMER TIMER TIMER TIMER TIMER TIMER TIMER TIMER TIMER\n",
                  "#####################################################\n")
-    #sys.stdout.write('\r')
-    #sys.stdout.write("TIMER TIMER TIMER TIMER TIMER TIMER TIMER TIMER TIMER\n" +
-    #                 "\n" +
-    #                 "Approximate time remaining: " + str(minutes) + "m" + str(seconds) + "s\n" +
-    #                 "\n" +
-    #                 "TIMER TIMER TIMER TIMER TIMER TIMER TIMER TIMER TIMER\n")
-    #sys.stdout.flush()
-    #return
