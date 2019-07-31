@@ -12,6 +12,8 @@ tune_guess.txt
 file_dict*.txt
 pathnames*.txt
 !pathnames_example.txt
+model/twiss.dat
+model/twiss_elements.dat
 
 # Generated SAD files
 run.sad
