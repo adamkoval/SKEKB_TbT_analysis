@@ -1,4 +1,6 @@
 """
+Script which reads phase output and plots a colourmap of the total phase advance of each BPM.
+
 Created on Tue Jun 11
 Author: Adam Koval
 """

@@ -1,9 +1,12 @@
-# =======================================
-# Author: Adam Koval
-# Date: 18/7/2019
-# With essential contributions from 
-# Andreas Wegscheider, Renjun Yang & Paul Thrane.
-# =======================================
+"""
+Main script which allows the user to utilise desired
+functions of this analysis package.
+
+Author: Adam Koval
+Date: 18/7/2019
+With essential contributions from
+Andreas Wegscheider, Renjun Yang & Paul Thrane.
+"""
 from __future__ import print_function
 import argparse
 import os

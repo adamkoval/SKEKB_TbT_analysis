@@ -1,3 +1,6 @@
+"""
+File containing functions for all python scripts in this package.
+"""
 from __future__ import print_function
 import os
 import re

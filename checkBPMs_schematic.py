@@ -1,4 +1,8 @@
 """
+Script which reads the output of async.py and creates a schematic of how each BPM is affected by
+the synchronisation fix.
+NOTE: I consider this script to be somewhat redundant, but it could be useful for debugging async.py.
+
 Created on Tue Jun 11
 Author: Adam Koval
 """

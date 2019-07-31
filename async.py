@@ -1,4 +1,7 @@
 """
+Script for analysing synchronisation of BPMs from phase data (output from measure_optics.py).
+This script outputs a text file discribing the number of turns each BPM is out of synch by.
+
 Created on Thu Oct 18 14:56:32 2018
 Edited on Fri May 24
 Author: Adam Koval
