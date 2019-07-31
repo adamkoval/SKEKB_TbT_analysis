@@ -112,36 +112,37 @@ TwissTitleAll[fname_:string]:=
     fw = OpenWrite[fname];
     
     WriteString[fw, "* ",
-      FormatColumn["NAME"], "  ",
-      FormatColumn["TYPENAME"], "  ",
-      FormatColumnHeader["S"],
-      FormatColumnHeader["BETX"],
-      FormatColumnHeader["BETY"],
-      FormatColumnHeader["ALFX"],
-      FormatColumnHeader["ALFY"],
-      FormatColumnHeader["MUX"],
-      FormatColumnHeader["MUY"],
-      FormatColumnHeader["K0L"],
-      FormatColumnHeader["K1L"],
-      FormatColumnHeader["K2L"],
-      FormatColumnHeader["DeltaMUX"],
-      FormatColumnHeader["DeltaMUY"],
-      "\n",
-      FormatColumn["%s"], "  ",
-      FormatColumn["%s"], "  ",
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      FormatColumnHeader["%le"],
-      "\n"];
+      			FormatColumn["NAME"], "  ",
+      			FormatColumn["TYPENAME"], "  ",
+      			FormatColumnHeader["S"],
+      			FormatColumnHeader["BETX"],
+      			FormatColumnHeader["BETY"],
+      			FormatColumnHeader["ALFX"],
+      			FormatColumnHeader["ALFY"],
+      			FormatColumnHeader["MUX"],
+      			FormatColumnHeader["MUY"],
+      			FormatColumnHeader["K0L"],
+      			FormatColumnHeader["K1L"],
+      			FormatColumnHeader["K2L"],
+      			FormatColumnHeader["DeltaMUX"],
+      			FormatColumnHeader["DeltaMUY"],
+      			"\n"];
+	WriteString[fw, "$ ",
+      			FormatColumn["%s"], "  ",
+      			FormatColumn["%s"], "  ",
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			FormatColumnHeader["%le"],
+      			"\n"];
   
     Close[fw];
   ]
@@ -155,22 +156,26 @@ WriteTwissMoni[fname_:string, nx0_, ny0_]:=
   Module[{fw, nbpm},
     fw = OpenAppend[fname];
     WriteString[fw, "\n"];
-    
+   	lastnx = 0;
+	lastny = 0; 
     nbpm = LINE["NAME", "M*"];      
-    Scan[
+    Do[
         WriteString[fw, "  ",
-          FormatColumn[#], "  ",
-          FormatColumn[LINE["TYPENAME", #]], "  ",
-          LINE["S", #],
-          Twiss["BX", #],
-          Twiss["BY", #],
-          Twiss["AX", #],
-          Twiss["AY", #],
-          Twiss["NX", #]/2/Pi,
-          Twiss["NY", #]/2/Pi,
-          (Twiss["NX", #]-nx0)/2/Pi,
-          (Twiss["NY", #]-ny0)/2/Pi,
-          "\n"]&, nbpm];
+          FormatColumn[nbpm[i]], "  ",
+          FormatColumn[LINE["TYPENAME", nbpm[i]]], "  ",
+          LINE["S", nbpm[i]],
+          Twiss["BX", nbpm[i]],
+          Twiss["BY", nbpm[i]],
+          Twiss["AX", nbpm[i]],
+          Twiss["AY", nbpm[i]],
+          Twiss["NX", nbpm[i]]/2/Pi,
+          Twiss["NY", nbpm[i]]/2/Pi,
+          (Twiss["NX", nbpm[i]]-lastnx)/2/Pi,
+          (Twiss["NY", nbpm[i]]-lastny)/2/Pi,
+          "\n"];
+		lastnx = Twiss["NX", nbpm[i]];
+		lastny = Twiss["NY", nbpm[i]];
+		, {i, Length[nbpm]}];
     Close[fw];
   ]
 
@@ -185,7 +190,7 @@ WriteTwissAll[fname_:string, nx0_, ny0_]:=
     fw = OpenAppend[fname];
     WriteString[fw, "\n"];
     
-    elems = LINE["NAME", "*"];      
+    elems = LINE["NAME", "{MQS}*"];      
     Scan[
         WriteString[fw, "  ",
           FormatColumn[#], "  ",
