@@ -14,11 +14,14 @@ pathnames*.txt
 !pathnames_example.txt
 model/twiss.dat
 model/twiss_elements.dat
+lattice/*
+!lattice/example_lattice.sad
 
 # Generated SAD files
 run.sad
 prerun.sad
 tune_info.sad
+model_and_tune.sad
 
 # Misc
 __pycache__/
