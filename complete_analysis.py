@@ -14,16 +14,21 @@ import os
 from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--debug', '-db',
-                    action='store_true',
-                    help='Debug option. Only runs for 2 files as opposed to all.')
-parser.add_argument('--pathnames',
+required = parser.add_argument_group('required arguments')
+required.add_argument('--pathnames',
                     action='store',
                     dest='pathnames',
                     help='Path to pathnames.txt file, which contains all other paths necessary for this script.')
+
+parser.add_argument('--debug', '-db',
+                    action='store_true',
+                    help='Debug option. Only runs for 2 files as opposed to all.')
+parser.add_argument('--group_runs', '-group',
+                    action='store_true',
+                    help='To be used when multiple runs for a single setting are available.')
 parser.add_argument('--harmonic1', '-h1',
                     action='store_true',
-                    help='Harmonic analysis; without knowledge of BPM synch. This is enough to obtain tunes.')
+                    help='Harmonic analysis without knowledge of BPM synch. This is enough to obtain tunes.')
 parser.add_argument('--phase1', '-p1',
                     action='store_true',
                     help='Phase analysis of harmonic1 output without BPM synch knowledge.')
@@ -64,8 +69,8 @@ if not os.path.exists(main_output):
     os.system('mkdir ' + main_output)
 else:
     pass
-unsynched_sdds = pathnames["unsynched_sdds_path"]
-synched_sdds = pathnames["synched_sdds_path"]
+unsynched_sdds = main_output + pathnames["unsynched_sdds_path"]
+synched_sdds = main_output + pathnames["synched_sdds_path"]
 file_dict = pathnames["file_dict"]
 
 # Executables
@@ -78,11 +83,23 @@ synched_phase_output = main_output + "synched_phase_output/"
 unsynched_harmonic_output = main_output + "unsynched_harmonic_output/"
 unsynched_phase_output = main_output + "unsynched_phase_output/"
 
-# SDDS conversion
 
-#asynch_info = False
+if args.group_runs == True:
+    while True:
+        user_input = raw_input('"--group_runs" flag has been switched on. Please note that the script WILL misbehave if this flag is used incorrectly. Refer to README for more info. Do you wish to proceed? (y/n):')
+        if user_input == 'y':
+            break
+        elif user_input == 'n':
+            print('Aborting.')
+            sys.exit()
+        else:
+            print('Please enter a valid input ("y" or "n").')
+            continue
+
+
 sdds_conv(input_data, file_dict, main_output, unsynched_sdds,
           lattice, gsad, ringID, args.debug, kickax, asynch_info=False)
+
 
 if args.harmonic1 == True:
     harmonic_analysis(python_exe, BetaBeatsrc_path, model_path,
@@ -94,7 +111,7 @@ else:
 
 if args.phase1 == True:
     phase_analysis(python_exe, BetaBeatsrc_path, model_path,
-                   unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds)
+                   unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds, args.group_runs)
 else:
     pass
 
@@ -120,7 +137,7 @@ else:
 
 if args.phase2 == True:
     phase_analysis(python_exe, BetaBeatsrc_path, model_path,
-                   synched_harmonic_output, synched_phase_output, synched_sdds)
+                   synched_harmonic_output, synched_phase_output, synched_sdds, args.group_runs)
 else:
     pass
 
