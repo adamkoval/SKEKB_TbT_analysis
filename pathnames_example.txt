@@ -8,8 +8,9 @@
 #		  Generally, the axis in which kicks are applied has cleaner
 #		  data which is more suitable for analysis.
 # BetaBeatsrc_path: Path to the Beta-Beat.src package.
-# model_path: Directory containing accelerator model information for
-#	     	  Beta-Beat.src scripts.
+# model_path: Directory into which the model information for
+#	     	  Beta-Beat.src scripts is stored (and where additional
+#			  information will be created).
 # main_output_path: Directory into which all output (not sdds files)
 #	      			will be placed.
 # unsynched_sdds_path: Where sdds files in the first stage (without
