@@ -84,9 +84,10 @@ unsynched_harmonic_output = main_output + "unsynched_harmonic_output/"
 unsynched_phase_output = main_output + "unsynched_phase_output/"
 
 
+# Warning about -group flag
 if args.group_runs == True:
     while True:
-        user_input = raw_input('"--group_runs" flag has been switched on. Please note that the script WILL misbehave if this flag is used incorrectly. Refer to README for more info. Do you wish to proceed? (y/n):')
+        user_input = raw_input('"--group_runs" flag has been switched on. Please note that the script WILL misbehave if this flag is used incorrectly. Refer to README Sec. IV.I for more info.\nDo you wish to proceed? (y/n):')
         if user_input == 'y':
             break
         elif user_input == 'n':
@@ -97,11 +98,11 @@ if args.group_runs == True:
             continue
 
 
-sdds_conv(input_data, file_dict, main_output, unsynched_sdds,
-          lattice, gsad, ringID, args.debug, kickax, asynch_info=False)
-
-
+# First sdds conversion and harmonic analysis 1
 if args.harmonic1 == True:
+    sdds_conv(input_data, file_dict, main_output, unsynched_sdds,
+              lattice, gsad, ringID, args.debug, kickax, asynch_info=False)
+
     harmonic_analysis(python_exe, BetaBeatsrc_path, model_path,
                       unsynched_harmonic_output, unsynched_sdds,
                       nturns, str(0.04), lattice, gsad)
@@ -109,6 +110,7 @@ else:
     pass
 
 
+# Phase analysis 1
 if args.phase1 == True:
     phase_analysis(python_exe, BetaBeatsrc_path, model_path,
                    unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds, args.group_runs)
@@ -116,14 +118,17 @@ else:
     pass
 
 
+# Asynch analysis
 if args.asynch == True:
     asynch_analysis(python_exe, unsynched_phase_output, main_output)
 
 
+# Plotting BPM synchronisation pre-fix
 if args.plotasynch1 == True:
     asynch_cmap(python_exe, unsynched_sdds, unsynched_phase_output, when='before')
 
 
+# Second sdds conversion (with knowledge of BPM synch) and harmonic analysis 2
 if args.harmonic2 == True:
     sdds_conv(input_data, file_dict, main_output, synched_sdds,
               lattice, gsad, ringID, args.debug, kickax, asynch_info=True)
@@ -135,12 +140,14 @@ else:
     pass
 
 
+# Phase analysis 2
 if args.phase2 == True:
     phase_analysis(python_exe, BetaBeatsrc_path, model_path,
                    synched_harmonic_output, synched_phase_output, synched_sdds, args.group_runs)
 else:
     pass
 
+
+# Plotting BPM synchronisation post-fix
 if args.plotasynch2 == True:
     asynch_cmap(python_exe, synched_sdds, synched_phase_output, when='after')
-
