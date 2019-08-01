@@ -84,7 +84,7 @@ To illustrate the use of the command line arguments, one may call, in order:
 
     1) "python2 complete_analysis.py --pathnames pathnames.txt -h1 -p1"
     2) "python2 complete_analysis.py --pathnames pathnames.txt -aa"
-        3) "python2 complete_analysis.py --pathnames pathnames.txt -h2"
+    3) "python2 complete_analysis.py --pathnames pathnames.txt -h2"
     4) "python2 complete_analysis.py --pathnames pathnames.txt -pa1 -p2"
 
 OR:
@@ -99,16 +99,17 @@ OR:
 
 I.e., the order of arguments within a command line call doesn't matter, as long as all arguments dependent on each other are called together.
 
-# IV.I Notes:
+# IV.I Caveats:
 
 1) If the user doesn't supply any optional arguments, the only function which will be executed is the initial KEK TbT data file -> sdds conversion.
 
 2) Keep in mind that *-pa1* & *-pa2* utilise matplotlib and possibly also Tkinter, in case the workaround has been applied (see "matplotlib/Tkinter workaround").
 
-3) *-group* will not work properly if a custom "file_dict.txt" is not supplied. This is because the grouping function requires that the file names are suffixed with "_i", where *i* is an integer (starting from *1*) denoting a repeated measurement at the same setting. For example, one could use the following naming convention in their custom "file_dict.txt":
+3) The *-group* flag will not work properly if a custom "file_dict.txt" is not supplied. This is because the grouping function requires that the file names are suffixed with "_k.sdds", where *k* is an integer (starting from *1*) denoting a repeated measurement at the same setting. For example, one could use the following naming convention in their custom "file_dict.txt":
 
 		{
 			{"input_data/EXAMPLE_2019_01_01_00_00_00.data", "SOME_SETTING_1.sdds"},
 			{"input_data/EXAMPLE_2019_01_01_00_00_01.data", "SOME_SETTING_2.sdds"},
 			{"input_data/EXAMPLE_2019_01_01_00_00_02.data", "SOME_SETTING_3.sdds"}
 		}
+	Note: The grouping function searches the .sdds setting name using the regex *(\S*)\_[0-9]+\.sdds*.
