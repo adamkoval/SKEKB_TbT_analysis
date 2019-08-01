@@ -21,8 +21,9 @@ required.add_argument('--pathnames',
                     help='Path to pathnames.txt file, which contains all other paths necessary for this script.')
 
 parser.add_argument('--debug', '-db',
-                    action='store_true',
-                    help='Debug option. Only runs for 2 files as opposed to all.')
+                    nargs='?',
+                    const='2',
+                    help='Debug option. Only runs for specified number of files as opposed to all. Default is set to 2.')
 parser.add_argument('--group_runs', '-group',
                     action='store_true',
                     help='To be used when multiple runs for a single setting are available.')
