@@ -265,6 +265,10 @@ def group_runs(files):
         if setting == oldsetting:
             group.append(file)
             oldsetting = setting
+            if file == files[-1]:
+                all_groups[oldsetting] = group
+            else:
+                pass
         else:
             all_groups[oldsetting] = group
             group = [file]
