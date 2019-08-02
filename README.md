@@ -112,4 +112,4 @@ I.e., the order of arguments within a command line call doesn't matter, as long 
 			{"input_data/EXAMPLE_2019_01_01_00_00_01.data", "NAME_2.sdds"},
 			{"input_data/EXAMPLE_2019_01_01_00_00_02.data", "NAME_3.sdds"}
 		}
-	Note: The grouping function searches the .sdds setting name using the regular expression *(\S\*)\\_[0-9]+\\.sdds*.
+	Note: The grouping function searches the .sdds setting name using the regular expression *"(\S\*)\\_[0-9]+\\.sdds"*.
