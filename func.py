@@ -102,7 +102,8 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
                    '\n'
                    'FFS["USE ' + LINE + '"],\n'
                    'CELL; CALC;\n'
-                   'emit;\n\n'
+                   'emit;\n'
+                #    'em=Emittance[];\n'    
                    'Get["func.n"];\n\n'
                    'runs = Get["' + file_dict + '"];\n'
                    'Do[\n'
@@ -188,7 +189,8 @@ def makemodel_and_guesstune(model_path, lattice, gsad):
                'USE ' + LINE + ';\n'
                'CELL;\n'
                'CALC;\n'
-               'emit;\n\n'
+            #    'emit;\n\n'
+               'em = Emittance[];\n\n'
                'Get["func.n"];\n\n'
                'fn1 = "' + model_path + 'twiss.dat";\n'
                'fn2 = "' + model_path + 'twiss_elements.dat";\n'
@@ -243,7 +245,7 @@ def harmonic_analysis(python_exe, BetaBeatsrc_path, model_path,
                    '--nattunex=' + model_tunex,
                    '--nattuney=' + model_tuney,
                    '--tolerance=' + tune_range,
-                   '--tune_clean_limit=1e-4']) # changed from 1e-5 to 10e-5 so that fewer BPMs are cleaned
+                   '--tune_clean_limit=1e-5']) # changed from 1e-5 to 10e-5 so that fewer BPMs are cleaned
         p.wait()
         finish = time.time() - start
         timer('Harmonic analysis', i, len(sdds_files), finish)

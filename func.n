@@ -69,10 +69,19 @@ SaveTwiss[fn1_:moni, fn2_:total]:=
 TwissTitleMoni[fname_:string]:=
   Module[{fw},
     fw = OpenWrite[fname];             
+    WriteString[fw, "@ TYPE       %05s      \"TWISS\"\n"];
+    WriteString[fw, "@ SEQUENCE   %05s      \"SuperKEKB-HER\"\n"];
+    WriteString[fw, "@ PARTICLE   %05s      \"ELECTRON\"\n"];
+    WriteString[fw, "@ OpticsFile %s       ", optics$file, "\n"];
+    WriteString[fw, "@ PC         %le      ", ToString[MOMENTUM*1e-9], "\n"];
+    WriteString[fw, "@ PBUNCH     %le      ", ToString[PBUNCH], "\n"];
+    WriteString[fw, "@ EX         %le      ", ToString[Emittances[[1]]/.em], "\n"];
+    WriteString[fw, "@ EY         %le      ", ToString[Emittances[[2]]/.em], "\n"];
+    WriteString[fw, "@ ALFA       %le      ", ToString[MomentumCompaction/.em], "\n"];
     WriteString[fw, "@ Q1         %le      ", Twiss["NX", "$$$"]/(2*Pi), "\n"];
     WriteString[fw, "@ Q2         %le      ", Twiss["NY", "$$$"]/(2*Pi), "\n"];
-    WriteString[fw, "@ OpticsFile %s      ", optics$file, "\n"];
-    WriteString[fw, "@ SEQUENCE   %s        SuperKEKB\n"];
+    WriteString[fw, "@ DATETIME   %08s     \"", ToString[DateString[]], "\"\n"];
+    ! WriteString[fw, "@ SEQUENCE   %s        SuperKEKB\n"];
 
     WriteString[fw, "* ",
                FormatColumn["NAME"], "  ",
@@ -86,10 +95,26 @@ TwissTitleMoni[fname_:string]:=
                FormatColumnHeader["MUY"],
                FormatColumnHeader["DeltaMUX"],
                FormatColumnHeader["DeltaMUY"],
+               FormatColumnHeader["DX"],
+               FormatColumnHeader["DY"],
+               FormatColumnHeader["DPX"],
+               FormatColumnHeader["DPY"],
+               FormatColumnHeader["R11"],
+               FormatColumnHeader["R12"],
+               FormatColumnHeader["R21"],
+               FormatColumnHeader["R22"],
                "\n"];
     WriteString[fw, "$ ",
                FormatColumn["%s"], "  ",
                FormatColumn["%s"], "  ",
+               FormatColumnHeader["%le"],
+               FormatColumnHeader["%le"],
+               FormatColumnHeader["%le"],
+               FormatColumnHeader["%le"],
+               FormatColumnHeader["%le"],
+               FormatColumnHeader["%le"],
+               FormatColumnHeader["%le"],
+               FormatColumnHeader["%le"],
                FormatColumnHeader["%le"],
                FormatColumnHeader["%le"],
                FormatColumnHeader["%le"],
@@ -155,7 +180,7 @@ TwissTitleAll[fname_:string]:=
 WriteTwissMoni[fname_:string, nx0_, ny0_]:=
   Module[{fw, nbpm},
     fw = OpenAppend[fname];
-    WriteString[fw, "\n"];
+    ! WriteString[fw, "\n"];
    	lastnx = 0;
 	lastny = 0; 
     nbpm = LINE["NAME", "M*"];      
@@ -172,6 +197,14 @@ WriteTwissMoni[fname_:string, nx0_, ny0_]:=
           Twiss["NY", nbpm[i]]/2/Pi,
           (Twiss["NX", nbpm[i]]-lastnx)/2/Pi,
           (Twiss["NY", nbpm[i]]-lastny)/2/Pi,
+          Twiss["EX", nbpm[i]],
+          Twiss["EY", nbpm[i]],
+          Twiss["EPX", nbpm[i]],
+          Twiss["EPY", nbpm[i]],
+          Twiss["R1", nbpm[i]],
+          Twiss["R2", nbpm[i]],
+          Twiss["R3", nbpm[i]],
+          Twiss["R4", nbpm[i]],
           "\n"];
 		lastnx = Twiss["NX", nbpm[i]];
 		lastny = Twiss["NY", nbpm[i]];
