@@ -9,6 +9,7 @@ import os
 import sys
 import argparse
 import pandas
+import re
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
@@ -92,22 +93,20 @@ bar = plt.colorbar()
 bar.set_label('$\Delta\ \phi$ [2$\pi$]', fontsize=18)
 bar.ax.tick_params(labelsize=18)
 
-#for i in range(column_length):
-#    if i%3 == 0 and i != 0:
-#        ax.axhline(y_posn[i], ls='--', lw=1)
-
 ax.set_xticks([i for i in range(row_length)])
 ax.set_xticklabels(BPM_list, rotation='vertical')
-#ax.set_yticks([i+.5 for i in y_posn])
 
-yticklabels = []
-all_meas = [i[:-4] for i in df.columns.tolist()]
-yticklabels.append(all_meas[0][:-3])
-for i in range(1, len(all_meas)):
-    if all_meas[i-1][:-3] != all_meas[i][:-3]:
-        yticklabels.append(all_meas[i][:-3])
-ax.set_yticks([i for i in y_posn if (i+1)%5==0])
-ax.set_yticklabels(yticklabels)
+all_meas = []
+for i in df.columns.tolist():
+    try:
+        try:
+            all_meas.append(re.match('(\S*\_[0-9]+)\.sdds', i).group(1))
+        except AttributeError:
+            all_meas.append(re.match('\S*\_avg', i).group(0))
+    except:
+        all_meas.append(i)
+ax.set_yticks(y_posn)
+ax.set_yticklabels(all_meas)
 ax.set_xlabel('BPM', fontsize=18)
 ax.set_ylabel('Measurement run', fontsize=18)
 plt.title('SuperKEKB BPM performance from T-b-T data (' + axis + '-axis, ' + args.when  + ')', fontsize=22)
