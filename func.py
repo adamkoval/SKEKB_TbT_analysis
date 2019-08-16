@@ -129,7 +129,7 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
         if look_for_dict(file_dict) == True:
             break
         else:
-            user_input = raw_input('There is no dictionary file present for .data -> .sdds conversion. Would you like to create a new one (input -> create) or would you like to provide one (input -> provide)?\n')
+            user_input = input('There is no dictionary file present for .data -> .sdds conversion. Would you like to create a new one (input -> create (\'create\' in python 2)) or would you like to provide one (input -> provide (\'provide\' in pyhton 2))?\n')
             if user_input == 'create':
                 generic_dict(input_data_dir, file_dict, ringID)
                 continue
@@ -139,7 +139,7 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
         # Checking if it is empty
         if os.listdir(sdds_dir):
             while True:
-                user_input = raw_input(sdds_dir + ' directory contains files. Would you like to clean the directory and start from scratch? (options: yes, no, show contents)\n')
+                user_input = input(sdds_dir + ' directory contains files. Would you like to clean the directory and start from scratch? (options: yes, no, show contents (python 3) or \'yes\', \'no\', \'show contents\' (python 2)\n')
                 if user_input == 'yes':
                     os.system('rm -r ' + sdds_dir + '*')
                     do_stuff()
@@ -209,11 +209,11 @@ def makemodel_and_guesstune(model_path, lattice, gsad):
                  "********************************************")
 
 
-def harmonic_analysis(python_exe, BetaBeatsrc_path, model_path,
+def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                       harmonic_output_path, sdds_path, nturns,
                       tune_range, lattice, gsad):
     """
-    Function to call hole_in_one.py script from BetaBeat.src.
+    Function to call hole_in_one.py script from BetaBeat.src or omc3.
     """
     makemodel_and_guesstune(model_path, lattice, gsad)
     with open('tune_guess.txt') as f:
@@ -222,6 +222,10 @@ def harmonic_analysis(python_exe, BetaBeatsrc_path, model_path,
     model_tuney = lines[1].split()[2]
     model_tunex = '0.' + re.match('[0-9]+\.([0-9]+)', model_tunex).group(1)
     model_tuney = '0.' + re.match('[0-9]+\.([0-9]+)', model_tuney).group(1)
+    drv_tunex = model_tunex
+    drv_tuney = model_tuney
+    max_peak = '5.0'
+    tunez = '0'
     if not os.path.exists(harmonic_output_path):
         os.system('mkdir ' + harmonic_output_path)
     sdds_files = os.listdir(sdds_path)
@@ -231,21 +235,40 @@ def harmonic_analysis(python_exe, BetaBeatsrc_path, model_path,
               "harmonic analysis:\n",
               '"Working on file ' + str(i) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
               "********************************************")
-        p = Popen([python_exe,
-                   BetaBeatsrc_path + 'hole_in_one.py',
-                   '--file', sdds_path + run,
-                   '--outputdir', harmonic_output_path,
-                   '--model', model_path + 'twiss.dat',
-                   '--startturn', '2',
-                   '--endturn', nturns,
-                   'harpy',
-                   '--harpy_mode', 'bpm',
-                   '--tunex=' + model_tunex,
-                   '--tuney=' + model_tuney,
-                   '--nattunex=' + model_tunex,
-                   '--nattuney=' + model_tuney,
-                   '--tolerance=' + tune_range,
-                   '--tune_clean_limit=1e-5']) # changed from 1e-5 to 10e-5 so that fewer BPMs are cleaned
+        if py_version > 2:
+            p = Popen([python_exe,
+                    BetaBeatsrc_path + 'hole_in_one.py',
+                    '--harpy',
+                    '--files', sdds_path + run,
+                    '--outputdir', harmonic_output_path,
+                    '--model', model_path + 'twiss.dat',
+                    '--tunes', drv_tunex, drv_tuney, tunez,
+                    '--nattunes', model_tunex, model_tuney, tunez,
+                    '--turns', tunez, nturns,
+                    '--tolerance ' + tune_range,
+                    # '--clean',
+                    # '--bad_bpms' 
+                    '--keep_exact_zeros',
+                    '--max_peak' + max_peak,
+                    '--tbt_datatype LHC',
+                    '--tune_clean_limit 1e-5'])
+        
+        else:
+            p = Popen([python_exe,
+                    BetaBeatsrc_path + 'hole_in_one.py',
+                    '--file', sdds_path + run,
+                    '--outputdir', harmonic_output_path,
+                    '--model', model_path + 'twiss.dat',
+                    '--startturn', '2',
+                    '--endturn', nturns,
+                    'harpy',
+                    '--harpy_mode', 'bpm',
+                    '--tunex=' + drv_tunex,
+                    '--tuney=' + drv_tuney,
+                    '--nattunex=' + model_tunex,
+                    '--nattuney=' + model_tuney,
+                    '--tolerance=' + tune_range,
+                    '--tune_clean_limit=1e-5']) # changed from 1e-5 to 10e-5 so that fewer BPMs are cleaned
         p.wait()
         finish = time.time() - start
         timer('Harmonic analysis', i, len(sdds_files), finish)
@@ -278,10 +301,10 @@ def group_runs(files):
     return all_groups
 
 
-def phase_analysis(python_exe, BetaBeatsrc_path, model_path,
+def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    harmonic_output_path, phase_output_path, sdds_path, group_flag):
     """
-    Function to call measure_optics.py script from BetaBeat.src.
+    Function to call measure_optics.py script from BetaBeat.src or omc3.
     """
     if not os.path.exists(phase_output_path):
         os.system('mkdir ' + phase_output_path)
@@ -292,32 +315,66 @@ def phase_analysis(python_exe, BetaBeatsrc_path, model_path,
               "phase analysis:\n",
               '"Working on file ' + str(i) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
               "********************************************")
-        p = Popen([python_exe,
-                   BetaBeatsrc_path + 'measure_optics.py',
-                   '--model', model_path,
-                   '--accel', 'skekb',
-                   '--files', harmonic_output_path + run,
-                   '--output', phase_output_path + run + '/'])
+        if py_version > 2:
+            p = Popen([python_exe,
+                    BetaBeatsrc_path + 'hole_in_one.py',
+                    '--optics',
+                    '--files', harmonic_output_path + run,
+                    '--outputdir', phase_output_path + run + '/',
+                    '--model_dir', model_path,
+                    '--accel', 'skekb',
+                    '--compensation','none'])
+        else:
+            p = Popen([python_exe,
+                    BetaBeatsrc_path + 'GetLLM/GetLLM.py',
+                    '--model', model_path + 'twiss.dat',
+                    '--accel', 'skekb',
+                    '--files', harmonic_output_path + run,
+                    # '--tbtana', 'SUSSIX',
+                    # '--threebpm', '1',
+                    '--coupling', '0',
+                    '--output', phase_output_path + run + '/'])      
+            # p = Popen([python_exe,
+            #         BetaBeatsrc_path + 'measure_optics.py',
+            #         '--model', model_path,
+            #         '--accel', 'skekb',
+            #         '--files', harmonic_output_path + run,
+            #         '--output', phase_output_path + run + '/'])
         p.wait()
         finish = time.time() - start
         timer('Phase analysis [single]', i, len(sdds_files), finish)
     if group_flag == True:
         grouped_files = group_runs(sdds_files)
         for i, group in enumerate(grouped_files):
-            group_s = ','.join([harmonic_output_path+j for j in grouped_files[group]])
-            print(group_s)
+            if py_version > 2:
+                group_s = str()
+                for j in grouped_files[group]:
+                    group_s +=' '+str(os.path.join(harmonic_output_path, j)) 
+            else:
+                group_s = ','.join([harmonic_output_path+j for j in grouped_files[group]])
             start = time.time()
             print(" ********************************************\n",
                   "phase analysis:\n",
                   '"Working on group ' + str(i) + '/' + str(len(grouped_files)) + ': ' + str(group) + '"\n',
                   "********************************************")
-            p = Popen([python_exe,
-                       BetaBeatsrc_path + 'measure_optics.py',
-                       '--model', model_path,
-                       '--accel', 'skekb',
-                       '--files', group_s,
-                       '--output', phase_output_path + group + '_avg/'])
-            p.wait()
+            
+            if py_version > 2:
+                os.system(str(python_exe)+' '
+                        +str(BetaBeatsrc_path)+'hole_in_one.py'
+                        ' --optics'
+                        ' --accel skekb'
+                        ' --compensation none'
+                        ' --model_dir '+str(model_path)+
+                        ' --outputdir '+str(phase_output_path)+str(group)+'_avg/'
+                        ' --files '+str(group_s))
+            else:
+                p = Popen([python_exe,
+                        BetaBeatsrc_path + 'measure_optics.py',
+                        '--model', model_path,
+                        '--accel', 'skekb',
+                        '--files', group_s,
+                        '--output', phase_output_path + group + '_avg/'])
+                p.wait()
             finish = time.time() - start
             timer('Phase analysis [average]', i, len(sdds_files), finish)
     return print(" ********************************************\n",
