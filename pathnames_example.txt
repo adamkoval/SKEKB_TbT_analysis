@@ -8,6 +8,7 @@
 #		  Generally, the axis in which kicks are applied has cleaner
 #		  data which is more suitable for analysis.
 # BetaBeatsrc_path: Path to the Beta-Beat.src package.
+# BetaBeatsrc_path: Path to the OMC3 package.
 # model_path: Directory into which the model information for
 #	     	  Beta-Beat.src scripts is stored (and where additional
 #			  information will be created).
@@ -21,6 +22,7 @@
 #	     	 desired sdds names.
 # gsad: Path to the SAD executable.
 # python_exe: Path to the python executable.
+# python3_exe: Path to the python3 executable.
 # =======================================================================
 #
 # From machine study

@@ -6,6 +6,7 @@ Package used for analysing Turn-by-Turn data from the SuperKEKB accelerator usin
 **Prerequisites**:
 
 * Python2.7 with the following packges installed:
+* OR: Python3.6 if analysis should be done with python3
     + numpy==1.15.0 (importnat! 1.16.x causes problems for Beta-Beat.src)
     + pandas==0.24.2
     + scipy==1.2.1
@@ -14,6 +15,7 @@ Package used for analysing Turn-by-Turn data from the SuperKEKB accelerator usin
     + NOTE: As the present package does not make use of Beta-Beat.src's graphical functions, it is possible to run it without prior installation of matplotlib and tkinter, see "matplotlib/Tkinter workaround" section.
 * Beta-Beat.src package - https://github.com/pylhc/Beta-Beat.src.
 * Strategic Accelerator Design (SAD) - https://github.com/KatsOide/SAD - see "SAD installation" section for install instructions.
+* OMC3 package - https://github.com/pylhc/omc3
 
 1) Edit the *pathnames.txt* file first, to ensure the package knows where to search for everything it needs. An example file, *pathnames_example.txt*, is supplied, which you can rename and edit any way you like. 
 Things to keep in mind:
@@ -22,6 +24,7 @@ Things to keep in mind:
     * Paths which define a directory must be ended with '/'. Perhaps in the future, a function to check for this can be added, but this doesn't exist at the moment. 
 
 3) Run "python2 complete\_analysis.py --help" to see possible command line arguments.
+    UPDATE: it is also possible to use python3, e.g. "python3 complete\_analysis.py"
 
 4) Run again with desired command line arguments (see "Calling main script" section).
 
@@ -71,6 +74,9 @@ Plotting of BPM synchronisation from phase2 output, after synch fix is applied.
 To be used when multiple runs for a single setting are available.
 - **"- -debug"/"-db":**
 Debug option. Only does analysis on 2 files, as opposed to all.
+- **"- -omc3"/"-o3":**
+Using the OMC3 in python3 analysis package instead of Beta-Beat.src in python2.
+
 
 Optional arguments may be applied all at once, or in separate calls of the "complete\_analysis.py" script in the order:
 
