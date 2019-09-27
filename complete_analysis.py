@@ -73,18 +73,18 @@ if not os.path.exists(main_output):
     os.system('mkdir ' + main_output)
 else:
     pass
-unsynched_sdds = main_output + pathnames["unsynched_sdds_path"]
-synched_sdds = main_output + pathnames["synched_sdds_path"]
+unsynched_sdds = os.path.join(main_output, 'unsynched_sdds/')
+synched_sdds = os.path.join(main_output, 'synched_sdds/')
 file_dict = pathnames["file_dict"]
 
 # Executables
 gsad = pathnames["gsad"]
 
 # Output directories
-synched_harmonic_output = main_output + "synched_harmonic_output/"
-synched_phase_output = main_output + "synched_phase_output/"
-unsynched_harmonic_output = main_output + "unsynched_harmonic_output/"
-unsynched_phase_output = main_output + "unsynched_phase_output/"
+synched_harmonic_output = os.path.join(main_output, 'synched_harmonic_output/')
+synched_phase_output = os.path.join(main_output, 'synched_phase_output/')
+unsynched_harmonic_output = os.path.join(main_output, 'unsynched_harmonic_output/')
+unsynched_phase_output = os.path.join(main_output, 'unsynched_phase_output/')
 
 
 if args.omc3 == True:

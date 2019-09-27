@@ -36,7 +36,7 @@ if not os.path.exists(args.aod):
 
 # Check for asynchronous BPMs in each measurement reun using phase output.
 for run in os.listdir(args.pod):
-    datapath = args.pod + run + '/'
+    datapath = os.path.join(args.pod, run)
     try:
         S, names, deltaph, phx, phxmdl, Qx, Qy = phase(datapath, args.axis)
     except IOError:
@@ -44,12 +44,13 @@ for run in os.listdir(args.pod):
     deltaphtot = phasetot(datapath, args.axis)
 
     level = []
+    deltaQ = 0.5
     for i in range(len(deltaphtot)):
-        if deltaphtot[i] / Qx >= .5:
+        if deltaphtot[i] / Qx >= deltaQ:
             level.append('-1')
-        elif deltaphtot[i] / Qx <= -.5:
+        elif deltaphtot[i] / Qx <= -deltaQ:
             level.append('+1')
-        elif deltaphtot[i] / Qx > -.5 and deltaphtot[i] / Qx < .5:
+        elif deltaphtot[i] / Qx > -deltaQ and deltaphtot[i] / Qx < deltaQ:
             level.append('0')
     file = open(args.aod + run + '.txt', 'w')
     file.write('{\n')

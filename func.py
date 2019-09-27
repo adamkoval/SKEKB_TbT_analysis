@@ -56,7 +56,7 @@ def generic_dict(input_data_dir, file_dict, ringID):
     fd = open(file_dict, 'w')
     fd.write('{\n')
     for i, file in enumerate(files):
-        before = input_data_dir + file
+        before = os.path.join(input_data_dir, file)
         after = file[:-5] + '.sdds'
         if files[i] != files[-1]:
             fd.write('    {"' + before + '", "' + after + '"},\n')
@@ -111,7 +111,7 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
         if asynch_info == False:
             file.write('    fbpm = "None";\n')
         elif asynch_info == True:
-            file.write('    fbpm = "' + main_output_dir + 'outofphase' + kickax + '/"//runs[i, 2]//".txt";\n')
+            file.write('    fbpm = "' + main_output_dir + 'outofphase' + kickax.lower() + '/"//runs[i, 2]//".txt";\n')
         file.write('    fwt1 = "' + sdds_dir + '"//runs[i, 2];\n'
                    '    Print["Converting "//runs[i, 1]//" -> "//runs[i, 2]];\n'
                    '    FormatBPMRead[fnr1, fwt1, fbpm];\n'
@@ -192,8 +192,8 @@ def makemodel_and_guesstune(model_path, lattice, gsad):
             #    'emit;\n\n'
                'em = Emittance[];\n\n'
                'Get["func.n"];\n\n'
-               'fn1 = "' + model_path + 'twiss.dat";\n'
-               'fn2 = "' + model_path + 'twiss_elements.dat";\n'
+               'fn1 = "' + model_path + '/twiss.dat";\n'
+               'fn2 = "' + model_path + '/twiss_elements.dat";\n'
                'SaveTwiss[fn1, fn2];\n\n'
                'file = OpenWrite["tune_guess.txt"];\n'
                'WriteString[file, "Qx = ", Twiss["nx", $$$]/(2*Pi), "\\n"];\n'
@@ -227,8 +227,10 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
     max_peak = '5.0'
     tunez = '0'
     if not os.path.exists(harmonic_output_path):
-        os.system('mkdir ' + harmonic_output_path)
-    sdds_files = os.listdir(sdds_path)
+        os.system('mkdir ' + harmonic_output_path) 
+
+    sdds_files = [ff for ff in os.listdir(sdds_path) if '.sdds' in ff ]
+
     for i, run in enumerate(sdds_files):
         start = time.time()
         print(" ********************************************\n",
@@ -236,27 +238,24 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
               '"Working on file ' + str(i) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
               "********************************************")
         if py_version > 2:
-            p = Popen([python_exe,
-                    BetaBeatsrc_path + 'hole_in_one.py',
-                    '--harpy',
-                    '--files', sdds_path + run,
-                    '--outputdir', harmonic_output_path,
-                    '--model', model_path + 'twiss.dat',
-                    '--tunes', drv_tunex, drv_tuney, tunez,
-                    '--nattunes', model_tunex, model_tuney, tunez,
-                    '--turns', tunez, nturns,
-                    '--tolerance ' + tune_range,
-                    # '--clean',
-                    # '--bad_bpms' 
-                    '--keep_exact_zeros',
-                    '--max_peak' + max_peak,
-                    '--tbt_datatype LHC',
-                    '--tune_clean_limit 1e-5'])
-        
+            os.system(str(python_exe) +' '
+                    +str(BetaBeatsrc_path) + 'hole_in_one.py'
+                    ' --harpy'
+                    ' --files ' + os.path.join(sdds_path, run) +
+                    ' --outputdir ' + harmonic_output_path + 
+                    ' --model '+ model_path + 'twiss.dat'
+                    ' --tunes '+ drv_tunex + ' ' + drv_tuney + ' ' + tunez +
+                    ' --nattunes ' + model_tunex + ' ' + model_tuney + ' ' + tunez+
+                    ' --turns ' + tunez + ' ' + nturns +
+                    ' --tolerance ' + tune_range +
+                    ' --unit um'
+                    ' --keep_exact_zeros'
+                    ' --max_peak ' + max_peak +
+                    ' --tune_clean_limit 1e-5')        
         else:
             p = Popen([python_exe,
                     BetaBeatsrc_path + 'hole_in_one.py',
-                    '--file', sdds_path + run,
+                    '--file', os.path.join(sdds_path, run),
                     '--outputdir', harmonic_output_path,
                     '--model', model_path + 'twiss.dat',
                     '--startturn', '2',
@@ -269,7 +268,7 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     '--nattuney=' + model_tuney,
                     '--tolerance=' + tune_range,
                     '--tune_clean_limit=1e-5']) # changed from 1e-5 to 10e-5 so that fewer BPMs are cleaned
-        p.wait()
+            p.wait()
         finish = time.time() - start
         timer('Harmonic analysis', i, len(sdds_files), finish)
     return print(" ********************************************\n",
@@ -308,7 +307,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
     """
     if not os.path.exists(phase_output_path):
         os.system('mkdir ' + phase_output_path)
-    sdds_files = os.listdir(sdds_path)
+    sdds_files = [ff for ff in os.listdir(sdds_path) if '.sdds' in ff ]
     for i, run in enumerate(sdds_files):
         start = time.time()
         print(" ********************************************\n",
@@ -319,21 +318,22 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
             p = Popen([python_exe,
                     BetaBeatsrc_path + 'hole_in_one.py',
                     '--optics',
-                    '--files', harmonic_output_path + run,
-                    '--outputdir', phase_output_path + run + '/',
+                    '--files', os.path.join(harmonic_output_path, run),
+                    '--outputdir', os.path.join(phase_output_path, run),
                     '--model_dir', model_path,
                     '--accel', 'skekb',
                     '--compensation','none'])
         else:
             p = Popen([python_exe,
                     BetaBeatsrc_path + 'GetLLM/GetLLM.py',
-                    '--model', model_path + 'twiss.dat',
+                    '--model', model_path + '/twiss.dat',
                     '--accel', 'skekb',
-                    '--files', harmonic_output_path + run,
+                    '--files', os.path.join(harmonic_output_path, run),
                     # '--tbtana', 'SUSSIX',
                     # '--threebpm', '1',
                     '--coupling', '0',
-                    '--output', phase_output_path + run + '/'])      
+                    '--u 1',
+                    '--output', os.path.join(phase_output_path, run)])      
             # p = Popen([python_exe,
             #         BetaBeatsrc_path + 'measure_optics.py',
             #         '--model', model_path,
@@ -344,20 +344,25 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
         finish = time.time() - start
         timer('Phase analysis [single]', i, len(sdds_files), finish)
     if group_flag == True:
-        grouped_files = group_runs(sdds_files)
-        for i, group in enumerate(grouped_files):
-            if py_version > 2:
-                group_s = str()
-                for j in grouped_files[group]:
-                    group_s +=' '+str(os.path.join(harmonic_output_path, j)) 
-            else:
-                group_s = ','.join([harmonic_output_path+j for j in grouped_files[group]])
+        # grouped_files = group_runs(sdds_files)
+        # for i, group in enumerate(grouped_files):
+        #     if py_version > 2:
+        #         group_s = str()
+        #         for j in grouped_files[group]:
+        #             group_s +=' '+str(os.path.join(harmonic_output_path, j)) 
+        #     else:
+        #         group_s = ','.join([harmonic_output_path+j for j in grouped_files[group]])
             start = time.time()
             print(" ********************************************\n",
                   "phase analysis:\n",
-                  '"Working on group ' + str(i) + '/' + str(len(grouped_files)) + ': ' + str(group) + '"\n',
+                  '"Working on group analysis"\n',
                   "********************************************")
-            
+            allff = str()
+            allff2 = str()
+            for ff in sdds_files:
+                allff = allff + os.path.join(harmonic_output_path,ff) + ' '
+                allff2 = allff2 + os.path.join(harmonic_output_path,ff) + ','
+            allff2 = allff2[:-1]
             if py_version > 2:
                 os.system(str(python_exe)+' '
                         +str(BetaBeatsrc_path)+'hole_in_one.py'
@@ -365,15 +370,15 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         ' --accel skekb'
                         ' --compensation none'
                         ' --model_dir '+str(model_path)+
-                        ' --outputdir '+str(phase_output_path)+str(group)+'_avg/'
-                        ' --files '+str(group_s))
+                        ' --outputdir '+str(phase_output_path)+'avg/'
+                        ' --files '+str(allff))
             else:
                 p = Popen([python_exe,
                         BetaBeatsrc_path + 'measure_optics.py',
                         '--model', model_path,
                         '--accel', 'skekb',
-                        '--files', group_s,
-                        '--output', phase_output_path + group + '_avg/'])
+                        '--files', allff2,
+                        '--output', str(phase_output_path)+'avg/'])
                 p.wait()
             finish = time.time() - start
             timer('Phase analysis [average]', i, len(sdds_files), finish)
@@ -389,12 +394,11 @@ def asynch_analysis(python_exe, phase_output_path, main_output_path):
     unsynched BPMs.
     """
     for axis in ['x', 'y']:
-        p = Popen([python_exe,
-                   'async.py',
-                   '--phase_output_dir', phase_output_path,
-                   '--async_output_dir', main_output_path + 'outofphase' + axis + '/',
-                   '--axis', axis])
-        p.wait()
+        os.system(str(python_exe)+
+                   ' async.py'
+                   ' --phase_output_dir '+ phase_output_path +
+                   ' --async_output_dir '+ main_output_path + 'outofphase' + axis + '/'+
+                   ' --axis '+ axis)
     return print(" ********************************************\n",
                  "asynch_analysis:\n",
                  '"Asynchronous BPMs found."\n',
@@ -448,19 +452,47 @@ def phase(datapath, axis):
     """
     Reads getphase*.out and returns required columns as arrays.
     """
-    with open(datapath + 'getphase' + axis + '.out') as f:
-        lines=f.readlines()
-    S1 = [float(lines[10+i].split()[0]) for i in range(len(lines[10:]))]
-    S2 = [float(lines[10+i].split()[4]) for i in range(len(lines[10:]))]
-    Sall = np.hstack([S1, S2[-1]])
-    name1 = [lines[10+i].split()[2] for i in range(len(lines[10:]))]
-    name2 = [lines[10+i].split()[3] for i in range(len(lines[10:]))]
-    namesall = np.hstack([name1, name2[-1]])
-    deltaph = [float(lines[10+i].split()[-1]) for i in range(len(lines[10:]))]
-    phx = [float(lines[10+i].split()[-2]) for i in range(len(lines[10:]))]
-    phxmdl = [float(lines[10+i].split()[-4]) for i in range(len(lines[10:]))]
-    Qx = float(lines[5].split()[3])
-    Qy = float(lines[6].split()[3])
+    fo2 = os.path.join(datapath, 'getphase' + axis + '.out')
+    fo3 = os.path.join(datapath, 'phase_' + axis + '.tfs')
+
+    if os.path.isfile(fo2):
+        ff = fo2
+        with open(ff) as f:
+            lines=f.readlines()
+        S1 = [float(lines[10+i].split()[0]) for i in range(len(lines[10:]))]
+        S2 = [float(lines[10+i].split()[4]) for i in range(len(lines[10:]))]
+        Sall = np.hstack([S1, S2[-1]])
+        name1 = [lines[10+i].split()[2] for i in range(len(lines[10:]))]
+        name2 = [lines[10+i].split()[3] for i in range(len(lines[10:]))]
+        namesall = np.hstack([name1, name2[-1]])
+        deltaph = [float(lines[10+i].split()[-1]) for i in range(len(lines[10:]))]
+        phx = [float(lines[10+i].split()[-2]) for i in range(len(lines[10:]))]
+        phxmdl = [float(lines[10+i].split()[-4]) for i in range(len(lines[10:]))]
+        Qx = float(lines[5].split()[3])
+        Qy = float(lines[6].split()[3])
+
+    elif os.path.isfile(fo3):
+        ff = fo3
+        with open(ff) as f:
+            lines=f.readlines()
+        S1 = [float(lines[10+i].split()[0]) for i in range(len(lines[10:]))]
+        S2 = [float(lines[10+i].split()[3]) for i in range(len(lines[10:]))]
+        Sall = np.hstack([S1, S2[-1]])
+        name1 = [lines[10+i].split()[2] for i in range(len(lines[10:]))]
+        name2 = [lines[10+i].split()[4] for i in range(len(lines[10:]))]
+        namesall = np.hstack([name1, name2[-1]])
+        deltaph = [float(lines[10+i].split()[-2]) for i in range(len(lines[10:]))]
+        phx = [float(lines[10+i].split()[5]) for i in range(len(lines[10:]))]
+        phxmdl = [float(lines[10+i].split()[7]) for i in range(len(lines[10:]))]
+        Qx = float(lines[6].split()[3])
+        Qy = float(lines[7].split()[3])
+
+    else:
+        return print(" ********************************************\n",
+                 "asynch_cmap:\n",
+                 '"No phase output files are found.. I stop now."\n',
+                 "********************************************")
+    
     return Sall, namesall, deltaph, phx, phxmdl, Qx, Qy
 
 
@@ -468,9 +500,26 @@ def phasetot(datapath, axis):
     """
     Reads getphasetot*.out and returns deltaphtot array.
     """
-    with open(datapath + 'getphasetot' + axis + '.out') as f:
-        lines = f.readlines()[8:]
-    deltaphtot = [float(lines[2+i].split()[-1]) for i in range(len(lines[2:]))]
+    fo2 = os.path.join(datapath, 'getphasetot' + axis + '.out')
+    fo3 = os.path.join(datapath, 'total_phase_' + axis + '.tfs')
+    if os.path.isfile(fo2):
+        ff = fo2
+        with open(ff) as f:
+            lines = f.readlines()[8:]
+        deltaphtot = [float(lines[2+i].split()[-1]) for i in range(len(lines[2:]))]
+
+    elif os.path.isfile(fo3):
+        ff = fo3
+        with open(ff) as f:
+            lines = f.readlines()[8:]
+        deltaphtot = [float(lines[2+i].split()[-2]) for i in range(len(lines[2:]))]
+
+    else:
+        return print(" ********************************************\n",
+                 "asynch_cmap:\n",
+                 '"No phase output files are found.. I stop now."\n',
+                 "********************************************")
+
     return deltaphtot
 
 
