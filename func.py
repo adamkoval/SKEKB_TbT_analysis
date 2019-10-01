@@ -348,7 +348,8 @@ def group_runs(files):
 
 
 def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
-                   harmonic_output_path, phase_output_path, sdds_path, group_flag):
+                   harmonic_output_path, phase_output_path, sdds_path, 
+                   group_flag, all_at_once_flag):
     """
     Function to call measure_optics.py script from BetaBeat.src or omc3.
     """
@@ -356,7 +357,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
         os.system('mkdir ' + phase_output_path)
     sdds_files = [ff for ff in os.listdir(sdds_path) if '.sdds' in ff ]
     
-    if group_flag is not True:
+    if (group_flag or all_at_once_flag) is not True:
         for i, run in enumerate(sdds_files):
             start = time.time()
             print(" ********************************************\n",
@@ -381,7 +382,6 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         # '--tbtana', 'SUSSIX',
                         # '--threebpm', '1',
                         '--coupling', '0',
-                        '--u 1',
                         '--output', os.path.join(phase_output_path, run)])      
                 # p = Popen([python_exe,
                 #         BetaBeatsrc_path + 'measure_optics.py',
@@ -392,6 +392,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
             p.wait()
             finish = time.time() - start
             timer('Phase analysis [single]', i, len(sdds_files), finish)
+    
     if group_flag == True:
         grouped_files = group_runs(sdds_files)
         for i, group in enumerate(grouped_files):
@@ -407,12 +408,6 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                   "phase analysis:\n",
                   '"Working on group '+str(i+1)+'/'+str(len(grouped_files))+ ': ' +str(group)+'"\n',
                   "********************************************")
-            # allff = str()
-            # allff2 = str()
-            # for ff in sdds_files:
-            #     allff = allff + os.path.join(harmonic_output_path,ff) + ' '
-            #     allff2 = allff2 + os.path.join(harmonic_output_path,ff) + ','
-            # allff2 = allff2[:-1]
             if py_version > 2:
                 os.system(str(python_exe)+' '
                         +str(BetaBeatsrc_path)+'hole_in_one.py'
@@ -430,10 +425,45 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         '--model', model_path,
                         '--accel', 'skekb',
                         '--files', str(group_s),
-                        '--output', str(phase_output_path)+'avg/'])
+                        '--output', str(os.path.join(phase_output_path, str(group)))])
                 p.wait()
             finish = time.time() - start
             timer('Phase analysis [average]', i, len(sdds_files), finish)
+    
+    if all_at_once_flag == True:
+        start = time.time()
+        print(" ********************************************\n",
+                "phase analysis:\n",
+                '"Working on all-at-once analysis for e.g. dispersion."\n',
+                "********************************************")
+        allff = str()
+        allff2 = str()
+        for ff in sdds_files:
+            allff = allff + os.path.join(harmonic_output_path,ff) + ' '
+            allff2 = allff2 + os.path.join(harmonic_output_path,ff) + ','
+        allff2 = allff2[:-1]
+        if py_version > 2:
+            os.system(str(python_exe)+' '
+                    +str(BetaBeatsrc_path)+'hole_in_one.py'
+                    ' --optics'
+                    ' --accel skekb'
+                    ' --compensation none'
+                    ' --second_order_dispersion'
+                    ' --union'
+                    ' --model_dir '+str(model_path)+
+                    ' --outputdir '+str(os.path.join(phase_output_path, 'average/' ))+
+                    ' --files '+str(allff))
+        else:
+            p = Popen([python_exe,
+                    BetaBeatsrc_path + 'measure_optics.py',
+                    '--model', model_path,
+                    '--accel', 'skekb',
+                    '--files', str(allff2),
+                    '--output', str(os.path.join(phase_output_path, 'average/' ))])
+            p.wait()
+        finish = time.time() - start
+        timer('Phase analysis [average]', i, len(sdds_files), finish)
+
     return print(" ********************************************\n",
                  "phase analysis:\n",
                  '"Phase analysis finished."\n',

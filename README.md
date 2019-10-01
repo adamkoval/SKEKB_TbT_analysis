@@ -72,6 +72,8 @@ Phase analysis of harmonic2 output with knowledge of BPM synch.
 Plotting of BPM synchronisation from phase2 output, after synch fix is applied.
 - **"- -group_runs"/"-g":**
 To be used when multiple runs for a single setting are available.
+- **"- -all_at_once"/"-all":**
+To be used when all files should run at once, e.g. for dispersion measurement with off-momentum files.
 - **"- -debug"/"-db":**
 Debug option. Only does analysis on 2 files, as opposed to all.
 - **"- -omc3"/"-o3":**

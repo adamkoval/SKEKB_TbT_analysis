@@ -28,6 +28,9 @@ parser.add_argument('--debug', '-db',
 parser.add_argument('--group_runs', '-g',
                     action='store_true',
                     help='To be used when multiple runs for a single setting are available.')
+parser.add_argument('--all_at_once', '-all',
+                    action='store_true',
+                    help='To be used when all files should run at once, e.g. for dispersion measurement with off-momentum files.')
 parser.add_argument('--harmonic1', '-h1',
                     action='store_true',
                     help='Harmonic analysis without knowledge of BPM synch. This is enough to obtain tunes.')
@@ -97,9 +100,9 @@ else:
     BetaBeatsrc_path = pathnames["BetaBeatsrc_path"]
 
 # Warning about -group flag
-if args.group_runs == True:
+if (args.group_runs or args.all_at_once) == True:
     while True:
-        user_input = input('"--group_runs" flag has been switched on. Please note that the script WILL misbehave if this flag is used incorrectly. Refer to README Sec. IV.I for more info.\nDo you wish to proceed? (y/n):')
+        user_input = input('"--group_runs" and/or "--all_at_once" flag has been switched on. Please note that the script WILL misbehave if this flag is used incorrectly. Refer to README Sec. IV.I for more info.\nDo you wish to proceed? (y/n):')
         if user_input == 'y':
             break
         elif user_input == 'n':
@@ -125,7 +128,8 @@ else:
 # Phase analysis 1
 if args.phase1 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
-                   unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds, args.group_runs)
+                   unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds, 
+                   args.group_runs, args.all_at_once)
 else:
     pass
 
@@ -155,7 +159,8 @@ else:
 # Phase analysis 2
 if args.phase2 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
-                   synched_harmonic_output, synched_phase_output, synched_sdds, args.group_runs)
+                   synched_harmonic_output, synched_phase_output, synched_sdds, 
+                   args.group_runs, args.all_at_once)
 else:
     pass
 
