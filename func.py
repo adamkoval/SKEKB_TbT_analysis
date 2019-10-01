@@ -182,6 +182,21 @@ def makemodel_and_guesstune(model_path, lattice, gsad):
         os.system('mkdir ' + model_path)
     else:
         pass
+
+    if len(os.listdir(model_path)) > 2:
+        print('\nThe following files have been found in the model directory:')
+        print(os.listdir(model_path),'\n')
+        while True:
+            user_input = input('Do you wish to proceed with the model creation? (y/n):')
+            if user_input == 'y':
+                break
+            elif user_input == 'n':
+                print('No model is created.')
+                return
+            else:
+                print('Please enter a valid input ("y" or "n").')
+                continue
+        
     fn = 'model_and_tune.sad'
     file = open(fn, "w")
     file.write('FFS;\n\n'
@@ -203,6 +218,26 @@ def makemodel_and_guesstune(model_path, lattice, gsad):
                'abort;\n')
     file.close()
     os.system(gsad + ' ' + fn)
+
+    for dp0 in np.arange(-1e-3, 1.1e-3, 1e-4):
+        print(round(dp0,4))
+        fn = 'offmom_model.sad'
+        ff = open(fn,'w')
+        ff.write('FFS;\n\n'
+                'GetMAIN["' + lattice + '"];\n'
+                'USE ' + LINE + ';\n'
+                'CELL;\n'
+                'DP0='+str(round(dp0,4))+';\n'
+                'CALC;\n'
+                'em = Emittance[];\n\n'
+                'Get["func.n"];\n\n'
+                'fn1 = "' + model_path + '/twiss_dp0_'+str(round(dp0,4))+'.dat";\n'
+                'fn2 = "' + model_path + '/twiss_elements_dp0_'+str(round(dp0,4))+'.dat";\n'
+                'SaveTwiss[fn1, fn2];\n\n'
+                'abort;\n')
+        ff.close()
+        os.system(gsad + ' ' + fn)
+
     return print(" ********************************************\n",
                  "makemodel_and_guesstunes:\n",
                  '"' + fn + ' finished, model is ready in ' + model_path + ' and tune guesses are written to tune_guess.txt."\n',
@@ -281,22 +316,34 @@ def group_runs(files):
     """
     Groups repeated measurements at the same setting for use in phase_analysis().
     """
+    # all_groups = {}
+    # oldsetting = re.match('(\S*)\_[0-9]+\.sdds', files[0]).group(1)
+    # group = [files[0]]
+    # for file in files[1:]:
+    #     setting = re.match('(\S*)\_[0-9]+\.sdds', file).group(1)
+    #     if setting == oldsetting:
+    #         group.append(file)
+    #         oldsetting = setting
+    #         if file == files[-1]:
+    #             all_groups[oldsetting] = group
+    #         else:
+    #             pass
+    #     else:
+    #         all_groups[oldsetting] = group
+    #         group = [file]
+    #         oldsetting = setting
+    # print(all_groups)
+
     all_groups = {}
-    oldsetting = re.match('(\S*)\_[0-9]+\.sdds', files[0]).group(1)
-    group = [files[0]]
-    for file in files[1:]:
-        setting = re.match('(\S*)\_[0-9]+\.sdds', file).group(1)
-        if setting == oldsetting:
-            group.append(file)
-            oldsetting = setting
-            if file == files[-1]:
-                all_groups[oldsetting] = group
-            else:
-                pass
-        else:
-            all_groups[oldsetting] = group
-            group = [file]
-            oldsetting = setting
+    files_reduced = [ff[:-7] for ff in files] #valid for numerated files up to 99
+    groups = list(set(files_reduced))
+    for i, group in enumerate(groups):
+        indices = [i for i, s in enumerate(files_reduced) if str(group) in s]
+        grouped_files = []
+        for ind in indices:
+            grouped_files.append(files[ind])
+        all_groups[group] = grouped_files
+        
     return all_groups
 
 
@@ -308,76 +355,81 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
     if not os.path.exists(phase_output_path):
         os.system('mkdir ' + phase_output_path)
     sdds_files = [ff for ff in os.listdir(sdds_path) if '.sdds' in ff ]
-    for i, run in enumerate(sdds_files):
-        start = time.time()
-        print(" ********************************************\n",
-              "phase analysis:\n",
-              '"Working on file ' + str(i) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
-              "********************************************")
-        if py_version > 2:
-            p = Popen([python_exe,
-                    BetaBeatsrc_path + 'hole_in_one.py',
-                    '--optics',
-                    '--files', os.path.join(harmonic_output_path, run),
-                    '--outputdir', os.path.join(phase_output_path, run),
-                    '--model_dir', model_path,
-                    '--accel', 'skekb',
-                    '--compensation','none'])
-        else:
-            p = Popen([python_exe,
-                    BetaBeatsrc_path + 'GetLLM/GetLLM.py',
-                    '--model', model_path + '/twiss.dat',
-                    '--accel', 'skekb',
-                    '--files', os.path.join(harmonic_output_path, run),
-                    # '--tbtana', 'SUSSIX',
-                    # '--threebpm', '1',
-                    '--coupling', '0',
-                    '--u 1',
-                    '--output', os.path.join(phase_output_path, run)])      
-            # p = Popen([python_exe,
-            #         BetaBeatsrc_path + 'measure_optics.py',
-            #         '--model', model_path,
-            #         '--accel', 'skekb',
-            #         '--files', harmonic_output_path + run,
-            #         '--output', phase_output_path + run + '/'])
-        p.wait()
-        finish = time.time() - start
-        timer('Phase analysis [single]', i, len(sdds_files), finish)
-    if group_flag == True:
-        # grouped_files = group_runs(sdds_files)
-        # for i, group in enumerate(grouped_files):
-        #     if py_version > 2:
-        #         group_s = str()
-        #         for j in grouped_files[group]:
-        #             group_s +=' '+str(os.path.join(harmonic_output_path, j)) 
-        #     else:
-        #         group_s = ','.join([harmonic_output_path+j for j in grouped_files[group]])
+    
+    if group_flag is not True:
+        for i, run in enumerate(sdds_files):
             start = time.time()
             print(" ********************************************\n",
+                "phase analysis:\n",
+                '"Working on file ' + str(i) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
+                "********************************************")
+            if py_version > 2:
+                p = Popen([python_exe,
+                        BetaBeatsrc_path + 'hole_in_one.py',
+                        '--optics',
+                        '--files', os.path.join(harmonic_output_path, run),
+                        '--outputdir', os.path.join(phase_output_path, run),
+                        '--model_dir', model_path,
+                        '--accel', 'skekb',
+                        '--compensation','none'])
+            else:
+                p = Popen([python_exe,
+                        BetaBeatsrc_path + 'GetLLM/GetLLM.py',
+                        '--model', model_path + '/twiss.dat',
+                        '--accel', 'skekb',
+                        '--files', os.path.join(harmonic_output_path, run),
+                        # '--tbtana', 'SUSSIX',
+                        # '--threebpm', '1',
+                        '--coupling', '0',
+                        '--u 1',
+                        '--output', os.path.join(phase_output_path, run)])      
+                # p = Popen([python_exe,
+                #         BetaBeatsrc_path + 'measure_optics.py',
+                #         '--model', model_path,
+                #         '--accel', 'skekb',
+                #         '--files', harmonic_output_path + run,
+                #         '--output', phase_output_path + run + '/'])
+            p.wait()
+            finish = time.time() - start
+            timer('Phase analysis [single]', i, len(sdds_files), finish)
+    if group_flag == True:
+        grouped_files = group_runs(sdds_files)
+        for i, group in enumerate(grouped_files):
+            if py_version > 2:
+                group_s = str()
+                for j in grouped_files[group]:
+                    group_s +=' '+str(os.path.join(harmonic_output_path, j)) 
+            else:
+                group_s = ','.join([harmonic_output_path+j for j in grouped_files[group]])
+            start = time.time()
+            
+            print(" ********************************************\n",
                   "phase analysis:\n",
-                  '"Working on group analysis"\n',
+                  '"Working on group '+str(i+1)+'/'+str(len(grouped_files))+ ': ' +str(group)+'"\n',
                   "********************************************")
-            allff = str()
-            allff2 = str()
-            for ff in sdds_files:
-                allff = allff + os.path.join(harmonic_output_path,ff) + ' '
-                allff2 = allff2 + os.path.join(harmonic_output_path,ff) + ','
-            allff2 = allff2[:-1]
+            # allff = str()
+            # allff2 = str()
+            # for ff in sdds_files:
+            #     allff = allff + os.path.join(harmonic_output_path,ff) + ' '
+            #     allff2 = allff2 + os.path.join(harmonic_output_path,ff) + ','
+            # allff2 = allff2[:-1]
             if py_version > 2:
                 os.system(str(python_exe)+' '
                         +str(BetaBeatsrc_path)+'hole_in_one.py'
                         ' --optics'
                         ' --accel skekb'
                         ' --compensation none'
+                        ' --second_order_dispersion'
+                        ' --union'
                         ' --model_dir '+str(model_path)+
-                        ' --outputdir '+str(phase_output_path)+'avg/'
-                        ' --files '+str(allff))
+                        ' --outputdir '+str(os.path.join(phase_output_path, str(group)))+
+                        ' --files '+str(group_s))
             else:
                 p = Popen([python_exe,
                         BetaBeatsrc_path + 'measure_optics.py',
                         '--model', model_path,
                         '--accel', 'skekb',
-                        '--files', allff2,
+                        '--files', str(group_s),
                         '--output', str(phase_output_path)+'avg/'])
                 p.wait()
             finish = time.time() - start

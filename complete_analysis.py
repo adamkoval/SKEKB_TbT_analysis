@@ -25,7 +25,7 @@ parser.add_argument('--debug', '-db',
                     nargs='?',
                     const='2',
                     help='Debug option. Only runs for specified number of files as opposed to all. Default is set to 2.')
-parser.add_argument('--group_runs', '-group',
+parser.add_argument('--group_runs', '-g',
                     action='store_true',
                     help='To be used when multiple runs for a single setting are available.')
 parser.add_argument('--harmonic1', '-h1',
