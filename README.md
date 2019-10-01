@@ -70,7 +70,7 @@ sdds conversion and harmonic analysis with knowledge of BPM synch.
 Phase analysis of harmonic2 output with knowledge of BPM synch.
 - **"- -plotasynch2"/"-pa2":**
 Plotting of BPM synchronisation from phase2 output, after synch fix is applied.
-- **"- -group_runs"/"-group":**
+- **"- -group_runs"/"-g":**
 To be used when multiple runs for a single setting are available.
 - **"- -debug"/"-db":**
 Debug option. Only does analysis on 2 files, as opposed to all.
