@@ -315,6 +315,8 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
 def group_runs(files):
     """
     Groups repeated measurements at the same setting for use in phase_analysis().
+    Files must be named name_xx.sddds where x can be any character, hence up to 99 files
+    can be summarised within one group. 
     """
     # all_groups = {}
     # oldsetting = re.match('(\S*)\_[0-9]+\.sdds', files[0]).group(1)
@@ -525,14 +527,16 @@ def asynch_cmap(python_exe, sdds_path, phase_output_path, when='before'):
     phase difference between BPMs.
     """
     for axis in ['x', 'y']:
-        p = Popen([python_exe,
-                   'checkBPMs_colormap.py',
-                   '--axis', axis,
-                   '--sdds_dir', sdds_path,
-                   '--phase_output_dir', phase_output_path,
-                   '--when', when,
-                   '--save'])
-        p.wait()
+        for form in ['png', 'pdf']:
+            p = Popen([python_exe,
+                    'checkBPMs_colormap.py',
+                    '--axis', axis,
+                    '--sdds_dir', sdds_path,
+                    '--phase_output_dir', phase_output_path,
+                    '--when', when,
+                    '--form', form,
+                    '--save'])
+            p.wait()
     return print(" ********************************************\n",
                  "asynch_cmap:\n",
                  '"BPM synchronisation colormap saved in main output directory."\n',
@@ -631,14 +635,14 @@ def BPMs_from_sdds(sddsfile):
     lines = [line for line in lines if not line.startswith('#')]
 
     BPMs = []
-    badBPMs = []
+    # badBPMs = []
     for line in lines:
         if line.startswith('0'):
             BPMs.append(line.split()[1])
-            if line.split()[3] == '.0000000000':
-                badBPMs.append(line.split()[1])
+            # if line.split()[3] == '.0000000000':
+            #     badBPMs.append(line.split()[1])
 
-    return BPMs, badBPMs
+    return BPMs #, badBPMs
 
 
 def get_all_outofsynch(async_output_dir):
