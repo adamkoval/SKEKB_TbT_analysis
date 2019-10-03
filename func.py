@@ -270,7 +270,7 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
         start = time.time()
         print(" ********************************************\n",
               "harmonic analysis:\n",
-              '"Working on file ' + str(i) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
+              '"Working on file ' + str(i+1) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
               "********************************************")
         if py_version > 2:
             os.system(str(python_exe) +' '
@@ -283,7 +283,7 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --nattunes ' + model_tunex + ' ' + model_tuney + ' ' + tunez+
                     ' --turns ' + tunez + ' ' + nturns +
                     ' --tolerance ' + tune_range +
-                    ' --unit um'
+                    ' --unit mm' # ("m", "cm", "mm", "um")
                     ' --keep_exact_zeros'
                     ' --max_peak ' + max_peak +
                     ' --tune_clean_limit 1e-5')        
@@ -362,7 +362,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
             start = time.time()
             print(" ********************************************\n",
                 "phase analysis:\n",
-                '"Working on file ' + str(i) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
+                '"Working on file ' + str(i+1) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
                 "********************************************")
             if py_version > 2:
                 p = Popen([python_exe,
@@ -379,10 +379,10 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         '--model', model_path + '/twiss.dat',
                         '--accel', 'skekb',
                         '--files', os.path.join(harmonic_output_path, run),
-                        # '--tbtana', 'SUSSIX',
-                        # '--threebpm', '1',
+                        '-b','m',
                         '--coupling', '0',
                         '--output', os.path.join(phase_output_path, run)])      
+                # DO NOT USE MEASURE OPTICS IN PYTHON 2 UNLESS YOU WANT TO CHECK SOMETHING
                 # p = Popen([python_exe,
                 #         BetaBeatsrc_path + 'measure_optics.py',
                 #         '--model', model_path,
@@ -421,17 +421,27 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         ' --files '+str(group_s))
             else:
                 p = Popen([python_exe,
-                        BetaBeatsrc_path + 'measure_optics.py',
-                        '--model', model_path,
+                        BetaBeatsrc_path + 'GetLLM/GetLLM.py',
+                        '--model', model_path + '/twiss.dat',
                         '--accel', 'skekb',
                         '--files', str(group_s),
-                        '--output', str(os.path.join(phase_output_path, str(group)))])
+                        # '-k 10000',
+                        # '-e 10000',
+                        '-b', 'm',
+                        '--coupling', '0',
+                        '--output', os.path.join(phase_output_path, str(group))]) 
+                # DO NOT USE MEASURE OPTICS IN PYTHON 2 UNLESS YOU WANT TO CHECK SOMETHING
+                # p = Popen([python_exe,
+                #         BetaBeatsrc_path + 'measure_optics.py',
+                #         '--model', model_path,
+                #         '--accel', 'skekb',
+                #         '--files', str(group_s),
+                #         '--output', str(os.path.join(phase_output_path, str(group)))])
                 p.wait()
             finish = time.time() - start
             timer('Phase analysis [average]', i, len(sdds_files), finish)
     
     if all_at_once_flag == True:
-        start = time.time()
         print(" ********************************************\n",
                 "phase analysis:\n",
                 '"Working on all-at-once analysis for e.g. dispersion."\n',
@@ -455,15 +465,17 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --files '+str(allff))
         else:
             p = Popen([python_exe,
-                    BetaBeatsrc_path + 'measure_optics.py',
-                    '--model', model_path,
-                    '--accel', 'skekb',
-                    '--files', str(allff2),
-                    '--output', str(os.path.join(phase_output_path, 'average/' ))])
+                        BetaBeatsrc_path + 'GetLLM/GetLLM.py',
+                        '--model', model_path + '/twiss.dat',
+                        '--accel', 'skekb',
+                        '--files', str(allff2),
+                        # '-k 10000',
+                        # '-e 10000',
+                        '-b', 'm',
+                        '--coupling', '0',
+                        '--output', os.path.join(phase_output_path, 'average/')])    
             p.wait()
-        finish = time.time() - start
-        timer('Phase analysis [average]', i, len(sdds_files), finish)
-
+        
     return print(" ********************************************\n",
                  "phase analysis:\n",
                  '"Phase analysis finished."\n',
@@ -536,24 +548,8 @@ def phase(datapath, axis):
     """
     fo2 = os.path.join(datapath, 'getphase' + axis + '.out')
     fo3 = os.path.join(datapath, 'phase_' + axis + '.tfs')
-
-    if os.path.isfile(fo2):
-        ff = fo2
-        with open(ff) as f:
-            lines=f.readlines()
-        S1 = [float(lines[10+i].split()[0]) for i in range(len(lines[10:]))]
-        S2 = [float(lines[10+i].split()[4]) for i in range(len(lines[10:]))]
-        Sall = np.hstack([S1, S2[-1]])
-        name1 = [lines[10+i].split()[2] for i in range(len(lines[10:]))]
-        name2 = [lines[10+i].split()[3] for i in range(len(lines[10:]))]
-        namesall = np.hstack([name1, name2[-1]])
-        deltaph = [float(lines[10+i].split()[-1]) for i in range(len(lines[10:]))]
-        phx = [float(lines[10+i].split()[-2]) for i in range(len(lines[10:]))]
-        phxmdl = [float(lines[10+i].split()[-4]) for i in range(len(lines[10:]))]
-        Qx = float(lines[5].split()[3])
-        Qy = float(lines[6].split()[3])
-
-    elif os.path.isfile(fo3):
+   
+    if os.path.isfile(fo3):
         ff = fo3
         with open(ff) as f:
             lines=f.readlines()
@@ -569,6 +565,23 @@ def phase(datapath, axis):
         Qx = float(lines[6].split()[3])
         Qy = float(lines[7].split()[3])
 
+    elif os.path.isfile(fo2):
+        ff = fo2
+        with open(ff) as f:
+            lines=f.readlines()
+        S1 = [float(lines[11+i].split()[2]) for i in range(len(lines[11:]))]
+        S2 = [float(lines[11+i].split()[3]) for i in range(len(lines[11:]))]
+        Sall = np.hstack([S1, S2[-1]])
+        name1 = [lines[11+i].split()[0] for i in range(len(lines[11:]))]
+        name2 = [lines[11+i].split()[1] for i in range(len(lines[11:]))]
+        namesall = np.hstack([name1, name2[-1]])
+        phx = np.array([float(lines[11+i].split()[5]) for i in range(len(lines[11:]))])
+        phxmdl = np.array([float(lines[11+i].split()[7]) for i in range(len(lines[11:]))])
+        deltaph = phx- phxmdl
+        Qx = float(lines[4].split()[3])
+        Qy = float(lines[6].split()[3])
+
+    
     else:
         return print(" ********************************************\n",
                  "asynch_cmap:\n",
@@ -584,17 +597,18 @@ def phasetot(datapath, axis):
     """
     fo2 = os.path.join(datapath, 'getphasetot' + axis + '.out')
     fo3 = os.path.join(datapath, 'total_phase_' + axis + '.tfs')
-    if os.path.isfile(fo2):
-        ff = fo2
-        with open(ff) as f:
-            lines = f.readlines()[8:]
-        deltaphtot = [float(lines[2+i].split()[-1]) for i in range(len(lines[2:]))]
-
-    elif os.path.isfile(fo3):
+    
+    if os.path.isfile(fo3):
         ff = fo3
         with open(ff) as f:
             lines = f.readlines()[8:]
         deltaphtot = [float(lines[2+i].split()[-2]) for i in range(len(lines[2:]))]
+
+    elif os.path.isfile(fo2):
+        ff = fo2
+        with open(ff) as f:
+            lines = f.readlines()[11:]
+        deltaphtot = [float(lines[2+i].split()[-1]) for i in range(len(lines[2:]))]
 
     else:
         return print(" ********************************************\n",
