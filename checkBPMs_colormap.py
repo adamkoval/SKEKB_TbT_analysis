@@ -69,8 +69,9 @@ cm = colors.ListedColormap(cmatrix)
 hor_ax, ver_ax = np.meshgrid(
     np.linspace(0, len(bpms), len(bpms) + 1),
     np.linspace(0, len(phase_folders), len(phase_folders) + 1))
+df.to_csv(phase_output_dir + '../cmapdfnoTranspose_' + axis+args.when + '.csv')
 Z = df.T
-fn = phase_output_dir + '../cmapdf_' + args.when + '.csv'
+fn = phase_output_dir + '../cmapdf_' + axis+args.when + '.csv'
 Z.to_csv(fn)
 Z = pandas.read_csv(fn, index_col=0)
 
@@ -79,11 +80,10 @@ row_length = len(bpms)
 y_posn = [i for i in range(column_length)]
 x_posn = [i for i in range(row_length)]
 
-
 # Plot
 size = 32
 fig = plt.figure(figsize=(15, 11)) #17,11 AK
-plt.pcolormesh(hor_ax, ver_ax, Z, cmap = cm)
+plt.pcolormesh(hor_ax, ver_ax, Z, cmap = cm)#, vmin=-0.45, vmax=0.45)#, cmap = cm)
 bar = plt.colorbar()
 if axis.lower() == 'x':
     bar.set_label('$\Delta\mu_{x}$ [2$\mathregular{\pi}$]', fontsize=size)
