@@ -87,8 +87,8 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
     Function generates a SAD script which does the conversion, and then calls it.
     """
     def do_stuff():
-        if debug is not None:
-            loopend = debug
+        if debug is True:
+            loopend = '2'
         else:
             loopend = 'Length[runs]'
         if asynch_info == False:

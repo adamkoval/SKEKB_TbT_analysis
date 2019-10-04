@@ -22,9 +22,8 @@ required.add_argument('--pathnames',
                     help='Path to pathnames.txt file, which contains all other paths necessary for this script.')
 
 parser.add_argument('--debug', '-db',
-                    nargs='?',
-                    const='2',
-                    help='Debug option. Only runs for specified number of files as opposed to all. Default is set to 2.')
+                    action='store_true',
+                    help='Debug option. Runs analysis only for one file and disables some warnings.')
 parser.add_argument('--group_runs', '-g',
                     action='store_true',
                     help='To be used when multiple runs for a single setting are available.')
@@ -100,17 +99,23 @@ else:
     BetaBeatsrc_path = pathnames["BetaBeatsrc_path"]
 
 # Warning about -group flag
-if (args.group_runs or args.all_at_once) == True:
-    while True:
-        user_input = input('"--group_runs" and/or "--all_at_once" flag has been switched on. Please note that the script WILL misbehave if this flag is used incorrectly. Refer to README Sec. IV.I for more info.\nDo you wish to proceed? (y/n):')
-        if user_input == 'y':
-            break
-        elif user_input == 'n':
-            print('Aborting.')
-            sys.exit()
-        else:
-            print('Please enter a valid input ("y" or "n").')
-            continue
+if args.debug is not True:
+    if (args.group_runs or args.all_at_once) == True:
+        while True:
+            user_input = input('"--group_runs" and/or "--all_at_once" flag has been switched on. Please note that the script WILL misbehave if this flag is used incorrectly. Refer to README Sec. IV.I for more info.\nDo you wish to proceed? (y/n):')
+            if user_input == 'y':
+                break
+            elif user_input == 'n':
+                print('Aborting.')
+                sys.exit()
+            else:
+                print('Please enter a valid input ("y" or "n").')
+                continue
+else:
+    print(" ********************************************\n",
+                "Debug option is on:\n",
+                '"Some warnings are disabled, so please be careful."\n',
+                "********************************************")
 
 
 # First sdds conversion and harmonic analysis 1
