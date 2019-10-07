@@ -219,8 +219,9 @@ def makemodel_and_guesstune(model_path, lattice, gsad):
     file.close()
     os.system(gsad + ' ' + fn)
 
+    # create several twiss files to then compute second order dispersion in plotting script 
     for dp0 in np.arange(-1e-3, 1.1e-3, 1e-4):
-        print(round(dp0,4))
+        # print(round(dp0,4))
         fn = 'offmom_model.sad'
         ff = open(fn,'w')
         ff.write('FFS;\n\n'
