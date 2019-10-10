@@ -77,8 +77,8 @@ Z = pandas.read_csv(fn, index_col=0)
 
 column_length = len(df.columns.tolist())
 row_length = len(bpms)
-y_posn = [i for i in range(column_length)]
-x_posn = [i for i in range(row_length)]
+# y_posn = [i for i in range(column_length)]
+# x_posn = [i for i in range(row_length)]
 
 # Plot
 size = 32
@@ -91,6 +91,8 @@ else:
     bar.set_label('$\Delta\mu_{y}$ [2$\mathregular{\pi}$]', fontsize=size)
 bar.ax.tick_params(labelsize=size)
 
+plt.xlim(0, len(hor_ax)-1)
+plt.ylim(0, len(ver_ax)-1)
 plt.xlabel('BPM Number', fontsize=size)
 plt.ylabel('Measurements', fontsize=size)
 plt.xlim(0,len(bpms))

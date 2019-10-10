@@ -97,10 +97,11 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
             fn = 'run.sad'
         LINE = get_LINE(lattice, gsad)
         file = open(fn, "w")
-        file.write('FFS;\n'
-                   'GetMAIN["' + lattice + '"];\n'
+        file.write(#'FFS;\n'
+                #    'GetMAIN["' + lattice + '"];\n'
+                   'read "' + lattice + '" ;\n'
                    '\n'
-                   'FFS["USE ' + LINE + '"],\n'
+                   'FFS USE ' + LINE + ';\n'
                    'CELL; CALC;\n'
                    'emit;\n'
                 #    'em=Emittance[];\n'    
@@ -167,8 +168,8 @@ def get_LINE(lattice, gsad):
         lines = f.readlines()
     for line in lines:
         if line.split()[0] == 'LINE':
-            LINE = re.match('LINE\s([A-Z]+)\s*\=', line).group(1)
-    return LINE
+            RINGNAME = line.split()[1]
+            return RINGNAME
 
 
 def makemodel_and_guesstune(model_path, lattice, gsad):
@@ -199,9 +200,10 @@ def makemodel_and_guesstune(model_path, lattice, gsad):
         
     fn = 'model_and_tune.sad'
     file = open(fn, "w")
-    file.write('FFS;\n\n'
-               'GetMAIN["' + lattice + '"];\n'
-               'USE ' + LINE + ';\n'
+    file.write(#'FFS;\n\n'
+            #    'GetMAIN["' + lattice + '"];\n'
+               'read "' + lattice + '" ;\n'
+               'FFS USE ' + LINE + ';\n'
                'CELL;\n'
                'CALC;\n'
             #    'emit;\n\n'
@@ -224,9 +226,10 @@ def makemodel_and_guesstune(model_path, lattice, gsad):
         # print(round(dp0,4))
         fn = 'offmom_model.sad'
         ff = open(fn,'w')
-        ff.write('FFS;\n\n'
-                'GetMAIN["' + lattice + '"];\n'
-                'USE ' + LINE + ';\n'
+        ff.write(#'FFS;\n\n'
+                # 'GetMAIN["' + lattice + '"];\n'
+                'read "' + lattice + '" ;\n'
+                'FFS USE ' + LINE + ';\n'
                 'CELL;\n'
                 'DP0='+str(round(dp0,4))+';\n'
                 'CALC;\n'
@@ -338,7 +341,7 @@ def group_runs(files):
     # print(all_groups)
 
     all_groups = {}
-    files_reduced = [ff[:-7] for ff in files] #valid for numerated files up to 99
+    files_reduced = [ff[:-7] for ff in files] 
     groups = list(set(files_reduced))
     for i, group in enumerate(groups):
         indices = [i for i, s in enumerate(files_reduced) if str(group) in s]
@@ -472,8 +475,8 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         '--model', model_path + '/twiss.dat',
                         '--accel', 'skekb',
                         '--files', str(allff2),
-                        # '-k 10000',
-                        # '-e 10000',
+                        '-k 10000',
+                        '-e 10000',
                         '-b', 'm',
                         '--coupling', '0',
                         '--output', os.path.join(phase_output_path, 'average/')])    
