@@ -134,7 +134,7 @@ else:
 if args.phase1 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds, 
-                   args.group_runs, args.all_at_once)
+                   ringID, args.group_runs, args.all_at_once)
 else:
     pass
 
@@ -165,7 +165,7 @@ else:
 if args.phase2 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    synched_harmonic_output, synched_phase_output, synched_sdds, 
-                   args.group_runs, args.all_at_once)
+                   ringID, args.group_runs, args.all_at_once)
 else:
     pass
 

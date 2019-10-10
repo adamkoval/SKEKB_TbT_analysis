@@ -355,7 +355,7 @@ def group_runs(files):
 
 def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    harmonic_output_path, phase_output_path, sdds_path, 
-                   group_flag, all_at_once_flag):
+                   ringID, group_flag, all_at_once_flag):
     """
     Function to call measure_optics.py script from BetaBeat.src or omc3.
     """
@@ -378,6 +378,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         '--outputdir', os.path.join(phase_output_path, run),
                         '--model_dir', model_path,
                         '--accel', 'skekb',
+                        '--ring', ringID,
                         '--compensation','none'])
             else:
                 p = Popen([python_exe,
@@ -419,6 +420,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         +str(BetaBeatsrc_path)+'hole_in_one.py'
                         ' --optics'
                         ' --accel skekb'
+                        ' --ring '+str(ringID)+
                         ' --compensation none'
                         ' --second_order_dispersion'
                         ' --union'
@@ -453,16 +455,19 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                 '"Working on all-at-once analysis for e.g. dispersion."\n',
                 "********************************************")
         allff = str()
-        allff2 = str()
-        for ff in sdds_files:
-            allff = allff + os.path.join(harmonic_output_path,ff) + ' '
-            allff2 = allff2 + os.path.join(harmonic_output_path,ff) + ','
-        allff2 = allff2[:-1]
+        if py_version > 2:
+            for ff in sdds_files:
+                allff = allff + os.path.join(harmonic_output_path,ff) + ' '
+        else:
+            for ff in sdds_files:
+                allff = allff + os.path.join(harmonic_output_path,ff) + ','
+        allff = allff[:-1]
         if py_version > 2:
             os.system(str(python_exe)+' '
                     +str(BetaBeatsrc_path)+'hole_in_one.py'
                     ' --optics'
                     ' --accel skekb'
+                    ' --ring '+str(ringID)+
                     ' --compensation none'
                     ' --second_order_dispersion'
                     ' --union'
@@ -474,7 +479,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         BetaBeatsrc_path + 'GetLLM/GetLLM.py',
                         '--model', model_path + '/twiss.dat',
                         '--accel', 'skekb',
-                        '--files', str(allff2),
+                        '--files', str(allff),
                         '-k 10000',
                         '-e 10000',
                         '-b', 'm',
