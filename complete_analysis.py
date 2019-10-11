@@ -2,7 +2,7 @@
 Main script which allows the user to utilise desired
 functions of this analysis package.
 
-Author: Adam Koval
+Author: Jacqueline Keintzel , Adam Koval
 Date: 18/7/2019
 With essential contributions from
 Andreas Wegscheider, Renjun Yang & Paul Thrane.
@@ -102,7 +102,10 @@ else:
 if args.debug is not True:
     if (args.group_runs or args.all_at_once) == True:
         while True:
-            user_input = input('"--group_runs" and/or "--all_at_once" flag has been switched on. Please note that the script WILL misbehave if this flag is used incorrectly. Refer to README Sec. IV.I for more info.\nDo you wish to proceed? (y/n):')
+            user_input = input('"--group_runs" and/or "--all_at_once" ' 
+                'flag has been switched on. Please note that the script WILL misbehave' 
+                'if this flag is used incorrectly. Refer to README Sec. IV.I for more info.\n'
+                'Do you wish to proceed? (y/n):"')
             if user_input == 'y':
                 break
             elif user_input == 'n':
