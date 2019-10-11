@@ -48,7 +48,14 @@ Things to keep in mind:
 1) Same as above, but I encountered the issue of not having the *yacc* compiler installed. If this is the case, run "sudo apt-get install bison", which includes yacc.
 
 
-# IV. Calling main script
+# IV. Get a lattice from KEK server
+If no sad lattice is provided so far, it can be extracted from the KEK server using "extract_sadlattice.sad".
+Note: This will only work if it runs at KEK server. 
+To run SAD at KEK use the following command: "/SAD/bin/gs -env skekb" .
+In addition, a SAD distribution by Oide-san can be used with: "/SAD/bin/gs -k64" . This has NOT been tested so use it on your own risk.
+
+
+# V. Calling main script
 The "complete_analysis.py" script takes mandatory and optional arguments.
 
 Mandatory arguments are:
@@ -107,7 +114,8 @@ OR:
 
 I.e., the order of arguments within a command line call doesn't matter, as long as all arguments dependent on each other are called together.
 
-# IV.I Caveats:
+
+# V.I Caveats:
 
 1) If the user doesn't supply any optional arguments, the only function which will be executed is the initial KEK TbT data file -> sdds conversion.
 
