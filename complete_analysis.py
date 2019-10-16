@@ -3,7 +3,7 @@ Main script which allows the user to utilise desired
 functions of this analysis package.
 
 Author: Jacqueline Keintzel , Adam Koval
-Date: 18/7/2019
+Date: 18/10/2019
 With essential contributions from
 Andreas Wegscheider, Renjun Yang & Paul Thrane.
 """
@@ -61,7 +61,7 @@ pathnames = read_pathnames(args.pathnames)
 
 # Inputs from study
 nturns = pathnames["nturns"]
-ringID = pathnames["ringID"]
+ringID = pathnames["ringID"].lower()
 lattice = pathnames["lattice"]
 input_data = pathnames["input_data_path"]
 kickax = pathnames["kickax"]
@@ -144,7 +144,7 @@ else:
 
 # Asynch analysis
 if args.asynch == True:
-    asynch_analysis(python_exe, unsynched_phase_output, main_output)
+    asynch_analysis(python_exe, unsynched_phase_output, main_output, ringID)
 
 
 # Plotting BPM synchronisation pre-fix

@@ -166,7 +166,7 @@ def get_LINE(lattice, gsad):
     """
     with open(lattice) as f:
         lines = f.readlines()
-    for line in lines:
+    for line in lines: #[9830:9835]
         if line.split()[0] == 'LINE':
             RINGNAME = line.split()[1]
             return RINGNAME
@@ -289,6 +289,7 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --tolerance ' + tune_range +
                     ' --unit mm' # ("m", "cm", "mm", "um")
                     ' --keep_exact_zeros'
+                    ' --clean'
                     ' --max_peak ' + max_peak +
                     ' --tune_clean_limit 1e-5')        
         else:
@@ -472,7 +473,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --second_order_dispersion'
                     ' --union'
                     ' --model_dir '+str(model_path)+
-                    ' --outputdir '+str(os.path.join(phase_output_path, 'average/' ))+
+                    ' --outputdir '+str(os.path.join(phase_output_path, 'average_new/' ))+
                     ' --files '+str(allff))
         else:
             p = Popen([python_exe,
@@ -484,7 +485,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         '-e 10000',
                         '-b', 'm',
                         '--coupling', '0',
-                        '--output', os.path.join(phase_output_path, 'average/')])    
+                        '--output', os.path.join(phase_output_path, 'average_new/')])    
             p.wait()
         
     return print(" ********************************************\n",
@@ -493,7 +494,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                  "********************************************")
 
 
-def asynch_analysis(python_exe, phase_output_path, main_output_path):
+def asynch_analysis(python_exe, phase_output_path, main_output_path, ringID):
     """
     Function to call async.py script to check phase output for
     unsynched BPMs.
@@ -503,7 +504,8 @@ def asynch_analysis(python_exe, phase_output_path, main_output_path):
                    ' async.py'
                    ' --phase_output_dir '+ phase_output_path +
                    ' --async_output_dir '+ main_output_path + 'outofphase' + axis + '/'+
-                   ' --axis '+ axis)
+                   ' --axis '+ axis +
+                   ' --ring '+ ringID)
     return print(" ********************************************\n",
                  "asynch_analysis:\n",
                  '"Asynchronous BPMs found."\n',

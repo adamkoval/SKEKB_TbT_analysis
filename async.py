@@ -3,7 +3,7 @@ Script for analysing synchronisation of BPMs from phase data (output from measur
 This script outputs a text file discribing the number of turns each BPM is out of synch by.
 
 Created on Thu Oct 18 14:56:32 2018
-Edited on Fri May 24
+Date: 16/10/2019 
 Author: Adam Koval
 """
 from __future__ import print_function
@@ -15,15 +15,10 @@ from func import phase, phasetot
 
 # Argument parser.
 parser = argparse.ArgumentParser()
-parser.add_argument('--phase_output_dir', '-pod',
-                    dest="pod",
-                    action="store")
-parser.add_argument('--async_output_dir', '-aod',
-                    dest="aod",
-                    action="store")
-parser.add_argument('--axis', '-ax',
-                    dest="axis",
-                    action="store")
+parser.add_argument('--phase_output_dir', '-pod', dest="pod", action="store")
+parser.add_argument('--async_output_dir', '-aod', dest="aod", action="store")
+parser.add_argument('--axis', '-ax', dest="axis", choices = ('x', 'y') ,action="store")
+parser.add_argument('--ring', '-r', dest="ring", choices = ('her', 'ler'), action="store")
 args = parser.parse_args()
 
 # Check if phase output directory exists, if not, exit.
@@ -45,12 +40,19 @@ for run in os.listdir(args.pod):
 
     level = []
     deltaQ = 0.5
+    deltaQ2 = 0.15
+
+    tune = Qx if args.axis == 'x' else Qy
     for i in range(len(deltaphtot)):
-        if deltaphtot[i] / Qx >= deltaQ:
-            level.append('-1')
-        elif deltaphtot[i] / Qx <= -deltaQ:
-            level.append('+1')
-        elif deltaphtot[i] / Qx > -deltaQ and deltaphtot[i] / Qx < deltaQ:
+        if deltaphtot[i] / tune >= deltaQ:
+            level.append('-1') if args.ring == 'her' else level.append('+1') 
+        elif deltaphtot[i] / tune <= -deltaQ:
+            level.append('+1') if args.ring == 'her' else level.append('-1')
+        elif deltaphtot[i] / tune >= deltaQ2: 
+            level.append('+2') if args.ring == 'her' else  level.append('-2')
+        elif deltaphtot[i] / tune <= -deltaQ2: 
+            level.append('-2') if args.ring == 'her' else level.append('+2')
+        else:
             level.append('0')
     file = open(args.aod + run + '.txt', 'w')
     file.write('{\n')
@@ -63,8 +65,6 @@ for run in os.listdir(args.pod):
             g += 1
     except IndexError:
         print(run)
-        print(len(level))
-        print(len(deltaphtot))
     file.write('\n}')
     file.close()
 

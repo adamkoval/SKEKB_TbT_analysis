@@ -4,7 +4,7 @@ Script which reads phase output and plots a colourmap of the total phase advance
 Created on Tue Jun 11
 Author: Adam Koval
 
-Adapted: 2019-10-03 Jacqueline Keintzel
+Adapted: 2019-10-16 Jacqueline Keintzel
 
 """
 from __future__ import print_function
@@ -74,6 +74,7 @@ Z = df.T
 fn = phase_output_dir + '../cmapdf_' + axis+args.when + '.csv'
 Z.to_csv(fn)
 Z = pandas.read_csv(fn, index_col=0)
+Z = np.ma.masked_where(np.isnan(Z),Z)
 
 column_length = len(df.columns.tolist())
 row_length = len(bpms)
@@ -83,12 +84,10 @@ row_length = len(bpms)
 # Plot
 size = 32
 fig = plt.figure(figsize=(15, 11)) #17,11 AK
-plt.pcolormesh(hor_ax, ver_ax, Z, cmap = cm)#, vmin=-0.45, vmax=0.45)#, cmap = cm)
+plt.pcolormesh(hor_ax, ver_ax, Z, vmin=-0.45, vmax=0.45)#, vmin=-0.45, vmax=0.45)#, cmap = cm)
 bar = plt.colorbar()
-if axis.lower() == 'x':
-    bar.set_label('$\Delta\mu_{x}$ [2$\mathregular{\pi}$]', fontsize=size)
-else:
-    bar.set_label('$\Delta\mu_{y}$ [2$\mathregular{\pi}$]', fontsize=size)
+if axis.lower() == 'x': bar.set_label('$\Delta\mu_{x}$ [2$\mathregular{\pi}$]', fontsize=size)
+else: bar.set_label('$\Delta\mu_{y}$ [2$\mathregular{\pi}$]', fontsize=size)
 bar.ax.tick_params(labelsize=size)
 
 plt.xlim(0, len(hor_ax)-1)
