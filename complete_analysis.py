@@ -144,7 +144,7 @@ else:
 
 # Asynch analysis
 if args.asynch == True:
-    asynch_analysis(python_exe, unsynched_phase_output, main_output, ringID)
+    asynch_analysis(python_exe, unsynched_phase_output, main_output, model_path, ringID)
 
 
 # Plotting BPM synchronisation pre-fix

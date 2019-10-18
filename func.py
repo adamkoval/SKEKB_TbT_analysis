@@ -494,16 +494,20 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                  "********************************************")
 
 
-def asynch_analysis(python_exe, phase_output_path, main_output_path, ringID):
+def asynch_analysis(python_exe, phase_output_path, main_output_path, model_path, ringID):
     """
     Function to call async.py script to check phase output for
     unsynched BPMs.
     """
-    for axis in ['x', 'y']:
+    sdds_dir = os.path.join(main_output_path, 'unsynched_sdds')
+    sdds = os.path.join(sdds_dir, os.listdir(sdds_dir)[0])
+
+    for axis in ['x']:
         os.system(str(python_exe)+
                    ' async.py'
                    ' --phase_output_dir '+ phase_output_path +
                    ' --async_output_dir '+ main_output_path + 'outofphase' + axis + '/'+
+                   ' --sdds ' + str(sdds) +
                    ' --axis '+ axis +
                    ' --ring '+ ringID)
     return print(" ********************************************\n",
@@ -557,7 +561,7 @@ def asynch_cmap(python_exe, sdds_path, phase_output_path, when='before'):
 # ====================================================
 # To be used in async.py
 # ====================================================
-def phase(datapath, axis):
+def read_phase(datapath, axis):
     """
     Reads getphase*.out and returns required columns as arrays.
     """
@@ -603,10 +607,11 @@ def phase(datapath, axis):
                  '"No phase output files are found.. I stop now."\n',
                  "********************************************")
     
-    return Sall, namesall, deltaph, phx, phxmdl, Qx, Qy
+    return namesall, Qx, Qy
+    # return Sall, namesall, deltaph, phx, phxmdl, Qx, Qy
 
 
-def phasetot(datapath, axis):
+def read_phasetot(datapath, axis):
     """
     Reads getphasetot*.out and returns deltaphtot array.
     """
@@ -632,6 +637,20 @@ def phasetot(datapath, axis):
                  "********************************************")
 
     return deltaphtot
+
+
+def read_bpms(sdds):
+    """
+    Reads one sdds file and returns all BPM names as an array.
+    """
+
+    with open(sdds) as f:
+        lines = f.readlines()
+    f.close()
+    bpm_lines = [lin for lin in lines if '0 M' in lin]
+    names = [bpm_lines[i].split()[1] for i in range(len(bpm_lines))]
+
+    return names
 
 
 # ====================================================

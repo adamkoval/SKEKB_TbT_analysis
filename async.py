@@ -11,7 +11,7 @@ import sys
 import os
 import numpy as np
 import argparse
-from func import phase, phasetot
+from func import read_phase, read_phasetot, read_bpms
 
 # Argument parser.
 parser = argparse.ArgumentParser()
@@ -19,7 +19,9 @@ parser.add_argument('--phase_output_dir', '-pod', dest="pod", action="store")
 parser.add_argument('--async_output_dir', '-aod', dest="aod", action="store")
 parser.add_argument('--axis', '-ax', dest="axis", choices = ('x', 'y') ,action="store")
 parser.add_argument('--ring', '-r', dest="ring", choices = ('her', 'ler'), action="store")
+parser.add_argument('--sdds', '-s', dest="sdds", action="store")
 args = parser.parse_args()
+
 
 # Check if phase output directory exists, if not, exit.
 if not os.path.exists(args.pod):
@@ -30,42 +32,62 @@ if not os.path.exists(args.aod):
     os.system("mkdir " + args.aod)
 
 # Check for asynchronous BPMs in each measurement reun using phase output.
-for run in os.listdir(args.pod):
+for count, run in enumerate(os.listdir(args.pod)):
     datapath = os.path.join(args.pod, run)
-    try:
-        S, names, deltaph, phx, phxmdl, Qx, Qy = phase(datapath, args.axis)
-    except IOError:
-        continue
-    deltaphtot = phasetot(datapath, args.axis)
+    # try:
+        # S, names, deltaph, phx, phxmdl, Qx, Qy = phase(datapath, args.axis)
+    # except IOError:
+    #     continue
 
+    namesmdl = read_bpms(args.sdds)
+    names, Qx, Qy = read_phase(datapath, args.axis)
+    deltaphtot = read_phasetot(datapath, args.axis)
+    
     level = []
     deltaQ = 0.5
-    deltaQ2 = 0.15
+    deltaQ2 = 0.15 
 
     tune = Qx if args.axis == 'x' else Qy
-    for i in range(len(deltaphtot)):
-        if deltaphtot[i] / tune >= deltaQ:
-            level.append('-1') if args.ring == 'her' else level.append('+1') 
-        elif deltaphtot[i] / tune <= -deltaQ:
-            level.append('+1') if args.ring == 'her' else level.append('-1')
-        elif deltaphtot[i] / tune >= deltaQ2: 
-            level.append('+2') if args.ring == 'her' else  level.append('-2')
-        elif deltaphtot[i] / tune <= -deltaQ2: 
-            level.append('-2') if args.ring == 'her' else level.append('+2')
-        else:
-            level.append('0')
+    j=0
+    i=0
+    while j < len(namesmdl):
+        try:
+            if namesmdl[j] == names[i]:
+                if deltaphtot[i] / tune >= deltaQ:
+                    level.append('-1') if args.ring == 'her' else level.append('+1') 
+                elif deltaphtot[i] / tune <= -deltaQ:
+                    level.append('+1') if args.ring == 'her' else level.append('-1')
+                elif deltaphtot[i] / tune >= deltaQ2: 
+                    level.append('+2') if args.ring == 'her' else  level.append('-2')
+                elif deltaphtot[i] / tune <= -deltaQ2: 
+                    level.append('-2') if args.ring == 'her' else level.append('+2')
+                else:
+                    level.append('0')
+            else:
+                level.append('0')
+                i=i-1
+            i=i+1
+            j=j+1
+        except IndexError:
+            break
+                    
+    while len(level) < len(namesmdl): level.append('0')
+
+    for i in range(len(level)):
+        if 1 < i < len(level)-1:
+            if level[i-1] == level[i+1] : 
+                if level[i] == '0': level[i] = level[i-1]
+
     file = open(args.aod + run + '.txt', 'w')
     file.write('{\n')
-    g = 0
-    try:
-        for i in range(len(names)):
-            if g != 0:
-                file.write(',\n')
-            file.write('"' + names[i] + '"->' + level[i])
-            g += 1
-    except IndexError:
-        print(run)
-    file.write('\n}')
+
+    # try:
+    for i in range(len(level)):
+        file.write('"' + namesmdl[i] + '"->' + level[i] + ',\n')
+    file.write('}')
+    # except IndexError:
+        # print(run)
     file.close()
+    # quit()
 
 sys.exit()
