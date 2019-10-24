@@ -49,10 +49,11 @@ def generic_dict(input_data_dir, file_dict, ringID):
     wishes to create a file_dict.txt.
     """
     files = []
+    
     for file in os.listdir(input_data_dir):
-        if file.endswith('.data') and file.startswith(ringID):
+        if file.endswith('.data') and file.startswith(ringID.upper()):
             files.append(file)
-
+    
     fd = open(file_dict, 'w')
     fd.write('{\n')
     for i, file in enumerate(files):
