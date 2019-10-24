@@ -289,6 +289,7 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --tolerance ' + tune_range +
                     ' --unit mm' # ("m", "cm", "mm", "um")
                     ' --keep_exact_zeros'
+                    ' --to_write spectra bpm_summary lin'
                     ' --clean'
                     ' --max_peak ' + max_peak +
                     ' --tune_clean_limit 1e-5')        
@@ -500,9 +501,9 @@ def asynch_analysis(python_exe, phase_output_path, main_output_path, model_path,
     unsynched BPMs.
     """
     sdds_dir = os.path.join(main_output_path, 'unsynched_sdds')
-    sdds = os.path.join(sdds_dir, os.listdir(sdds_dir)[0])
+    sdds = os.path.join(sdds_dir, os.listdir(sdds_dir)[1])
 
-    for axis in ['x']:
+    for axis in ['x', 'y']:
         os.system(str(python_exe)+
                    ' async.py'
                    ' --phase_output_dir '+ phase_output_path +
@@ -558,8 +559,36 @@ def asynch_cmap(python_exe, sdds_path, phase_output_path, when='before'):
                  "********************************************")
 
 
+def bpm_calibration(synched_sdds, synched_harmonic_output, synched_phase_output,
+                    calibrated_harmonic_output, calibrated_phase_output, ringID):
+    """
+    Function to call calibration.py script to calibrate amplitudes.
+    Until now: works only with python 2, as tfs_pandas is required.
+    """
+    for plane in ['x','y']:
+        os.system('/afs/cern.ch/work/o/omc/anaconda/bin/python calibration.py'
+                    ' --sdds ' + synched_sdds +
+                    ' --plane ' + plane +
+                    ' --ring ' + ringID )
+
+
+def calib_hist(python_exe, synched_sdds, phase_output, when='before'):
+    """
+    Function to call checkCALIBRATION_histogram.py to make histogram of
+    (beta_amp - beta_phase)/beta_phase  beating.
+    """
+    for plane in ['x', 'y']:
+        for form in ['png', 'pdf']:
+            os.system(python_exe + ' checkCALIBRATION_histogram.py' +
+                        ' --sdds ' + synched_sdds +
+                        ' --phase ' + phase_output +
+                        ' --axis ' + plane + 
+                        ' --when ' + when +
+                        ' --pngpdf ' + form )
+
+
 # ====================================================
-# To be used in async.py
+# To be used in async.py and calibration.py
 # ====================================================
 def read_phase(datapath, axis):
     """
@@ -651,6 +680,42 @@ def read_bpms(sdds):
     names = [bpm_lines[i].split()[1] for i in range(len(bpm_lines))]
 
     return names
+
+
+def read_bet_phase(folder, plane):
+    """
+    Reads beta_phase_*.tfs and returns the beta function.
+    """
+    file = os.path.join(folder, 'beta_phase_' + plane + '.tfs')
+    with open(file) as fo:
+        lines = fo.readlines()[15:]
+    fo.close()
+    beta_phase = [float(lines[i].split()[5]) for i in range(len(lines))]
+    beta_phase_err = [float(lines[i].split()[6]) for i in range(len(lines))]
+    bpms = [lines[i].split()[0] for i in range(len(lines))]
+    return beta_phase, beta_phase_err, bpms
+
+
+def read_bet_amp(folder, plane):
+    """
+    Reads beta_amplitude_*.tfs and returns the beta function.
+    """
+    file = os.path.join(folder, 'beta_amplitude_' + plane + '.tfs')
+    with open(file) as fo:
+        lines = fo.readlines()[12:]
+    fo.close()
+    beta_amp = [float(lines[i].split()[3]) for i in range(len(lines))]
+    beta_amp_err = [float(lines[i].split()[4]) for i in range(len(lines))]
+    return beta_amp, beta_amp_err
+
+
+def reject_outliers(data, m=2):
+    """
+    Removes outliers in a list.
+    Outliers are farther than m*stddev away from mean. 
+    """
+    data = [val for val in data if (abs(val-np.mean(data)) < m*np.std(data))]
+    return data
 
 
 # ====================================================

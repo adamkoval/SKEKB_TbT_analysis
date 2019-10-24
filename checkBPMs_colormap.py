@@ -1,10 +1,9 @@
 """
 Script which reads phase output and plots a colourmap of the total phase advance of each BPM.
 
-Created on Tue Jun 11
-Author: Adam Koval
+Author: Jacqueline Keintzel, Adam Koval
 
-Adapted: 2019-10-16 Jacqueline Keintzel
+Date: 24/10/2019
 
 """
 from __future__ import print_function
@@ -41,7 +40,7 @@ data = 'total_phase_' + axis.lower() + '.tfs'
 phase_folders = [ff for ff in os.listdir(phase_output_dir) if 'av' not in ff]
 
 # List all BPMs from any sdds file
-bpms = BPMs_from_sdds(os.path.join(sdds_dir, os.listdir(sdds_dir)[0]))
+bpms = BPMs_from_sdds(os.path.join(sdds_dir, os.listdir(sdds_dir)[1]))
 
 
 # Create dataframe for plotting

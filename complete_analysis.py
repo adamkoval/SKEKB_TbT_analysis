@@ -3,7 +3,7 @@ Main script which allows the user to utilise desired
 functions of this analysis package.
 
 Author: Jacqueline Keintzel , Adam Koval
-Date: 18/10/2019
+Date: 24/10/2019
 With essential contributions from
 Andreas Wegscheider, Renjun Yang & Paul Thrane.
 """
@@ -12,7 +12,7 @@ import argparse
 import os
 import sys
 
-from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap
+from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required arguments')
@@ -51,6 +51,18 @@ parser.add_argument('--phase2', '-p2',
 parser.add_argument('--plotasynch2', '-pa2',
                     action='store_true',
                     help='Plotting of BPM synchronisation from phase2 output, after synch fix is applied.')
+parser.add_argument('--calib', '-c',
+                    action='store_true',
+                    help='Calculates the BPM calibration for this measurement.')
+parser.add_argument('--phase3', '-p3',
+                    action='store_true',
+                    help='Phase analysis of harmonic3 output with knowledge of BPM calibration.')
+parser.add_argument('--plotcalib1', '-pc1',
+                    action='store_true',
+                    help='Plotting of BPM calibration from phase2 output, before calibration is applied.')
+parser.add_argument('--plotcalib2', '-pc2',
+                    action='store_true',
+                    help='Plotting of BPM calibration from phase3 output, after calibration is applied.')
 parser.add_argument('--omc3', '-o3',
                     action='store_true',
                     help='Use the new OMC3-analysis instead of python2-BetaBeat.src.')
@@ -83,6 +95,8 @@ file_dict = pathnames["file_dict"]
 gsad = pathnames["gsad"]
 
 # Output directories
+calibrated_harmonic_output = os.path.join(main_output, 'calibrated_harmonic_output/')
+calibrated_phase_output = os.path.join(main_output, 'calibrated_phase_output/')
 synched_harmonic_output = os.path.join(main_output, 'synched_harmonic_output/')
 synched_phase_output = os.path.join(main_output, 'synched_phase_output/')
 unsynched_harmonic_output = os.path.join(main_output, 'unsynched_harmonic_output/')
@@ -129,8 +143,7 @@ if args.harmonic1 == True:
     harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                       unsynched_harmonic_output, unsynched_sdds,
                       nturns, str(0.04), lattice, gsad)
-else:
-    pass
+else: pass
 
 
 # Phase analysis 1
@@ -138,18 +151,19 @@ if args.phase1 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
-else:
-    pass
+else: pass
 
 
 # Asynch analysis
 if args.asynch == True:
     asynch_analysis(python_exe, unsynched_phase_output, main_output, model_path, ringID)
+else: pass
 
 
 # Plotting BPM synchronisation pre-fix
 if args.plotasynch1 == True:
     asynch_cmap(python_exe, unsynched_sdds, unsynched_phase_output, when='before')
+else: pass
 
 
 # Second sdds conversion (with knowledge of BPM synch) and harmonic analysis 2
@@ -160,8 +174,7 @@ if args.harmonic2 == True:
     harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                       synched_harmonic_output, synched_sdds,
                       nturns, str(0.04), lattice, gsad)
-else:
-    pass
+else: pass
 
 
 # Phase analysis 2
@@ -169,10 +182,45 @@ if args.phase2 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    synched_harmonic_output, synched_phase_output, synched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
-else:
-    pass
+else: pass
 
 
 # Plotting BPM synchronisation post-fix
 if args.plotasynch2 == True:
     asynch_cmap(python_exe, synched_sdds, synched_phase_output, when='after')
+else: pass
+
+
+# Plotting BPM calibration pre-calib
+if args.plotcalib1 == True:
+    calib_hist(python_exe, synched_sdds, synched_phase_output, when='before')
+else: pass
+
+
+# Calculation of BPM calibration and writing lin files and calib harmonic folder
+if args.calib == True:
+    bpm_calibration(synched_sdds, synched_harmonic_output, synched_phase_output,
+                    calibrated_harmonic_output, calibrated_phase_output, ringID)
+else: pass
+
+
+# Phase analysis 3, with calibrated BPMs
+if args.phase3 == True:
+    phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
+                   calibrated_harmonic_output, calibrated_phase_output, synched_sdds, 
+                   ringID, args.group_runs, args.all_at_once)
+else: pass
+
+
+# Plotting BPM calibration post-calib
+if args.plotcalib2 == True:
+    calib_hist(python_exe, synched_sdds, calibrated_phase_output, when='after')
+else: pass
+
+
+print(" ********************************************\n",
+        "Everything comes to an end at some point...\n",
+        "Complete analysis is finished.\n",
+        "********************************************")
+
+
