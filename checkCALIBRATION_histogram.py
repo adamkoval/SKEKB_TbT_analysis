@@ -11,6 +11,7 @@ from __future__ import print_function
 from optparse import OptionParser
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 from func import read_bet_phase, read_bet_amp
 
 
@@ -40,9 +41,12 @@ if __name__ == "__main__":
 
         beat = beat + [100*(beta_amp[i] - beta_phase[i])/beta_phase[i] for i in range(len(beta_phase)) if abs(100*(beta_amp[i] - beta_phase[i])/beta_phase[i]) <= 250 ] 
 
+    av = np.mean(beat)
 
     plt.figure(figsize=(fix, fiy))
-    plt.hist(beat, bins=200)
+    n, bins, patches  = plt.hist(beat, bins=200)
+    plt.plot(np.array([av,av]), np.array([0,max(n)]), ls='--', color = 'grey', lw = 2)
+    plt.ylim(0, max(n))
     plt.tick_params('both', labelsize=size)
     if options.axis == 'x': plt.xlabel(r'$(\beta_{x, amp}-\beta_{x, ph}) / \beta_{x, ph}$ [%]', fontsize=size)
     else: plt.xlabel(r'$(\beta_{y, amp}-\beta_{y, ph}) / \beta_{y, ph}$ [%]', fontsize=size)
