@@ -77,6 +77,14 @@ sdds conversion and harmonic analysis with knowledge of BPM synch.
 Phase analysis of harmonic2 output with knowledge of BPM synch.
 - **"- -plotasynch2"/"-pa2":**
 Plotting of BPM synchronisation from phase2 output, after synch fix is applied.
+- **"- -calib"/"-c":**
+Calculates the BPM calibration for this measurement.
+- **"- -phase2"/"-p3":**
+Phase analysis of harmonic3 output with knowledge of BPM calibration.
+- **"- -plotcalib1"/"-pc1":**
+Plotting of BPM calibration from phase2 output, before calibration is applied.
+- **"- -plotcalib2"/"-pc2":**
+Plotting of BPM calibration from phase3 output, after calibration is applied.
 - **"- -group_runs"/"-g":**
 To be used when multiple runs for a single setting are available.
 - **"- -all_at_once"/"-all":**
@@ -89,11 +97,12 @@ Using the OMC3 in python3 analysis package instead of Beta-Beat.src in python2.
 
 Optional arguments may be applied all at once, or in separate calls of the "complete\_analysis.py" script in the order:
 
-     -h1 <- -p1 <- -aa <- -h2 <- -p2,
+     -h1 <- -p1 <- -aa <- -h2 <- -p2 <- -c <- -p3,
 
 where "a <- b" means that *b* depeds on *a*.  
 
-Note also, that *-pa1* and *-pa2* may be used at will, but only once their respective phase analyses, *-p1* and *-p2*, have completed.
+Note also, that *-pa1* and *-pa2* may be used at will, but only once their respective phase analyses, *-p1* and *-p2*, have completed. Moreover, *-pc1* and *-pc2* may be used at will,
+but only after the respective phase analyses, *-p2* and *-p3*, have been completed.
 
 To illustrate the use of the command line arguments, one may call, in order:
 
@@ -119,7 +128,7 @@ I.e., the order of arguments within a command line call doesn't matter, as long 
 
 1) If the user doesn't supply any optional arguments, the only function which will be executed is the initial KEK TbT data file -> sdds conversion.
 
-2) Keep in mind that *-pa1* & *-pa2* utilise matplotlib and possibly also Tkinter, in case the workaround has been applied (see "matplotlib/Tkinter workaround").
+2) Keep in mind that *-pa1* & *-pa2* (also *-pc1* & *-pc2* ) utilise matplotlib and possibly also Tkinter, in case the workaround has been applied (see "matplotlib/Tkinter workaround").
 
 3) The *-group* flag will not work properly if a custom "file_dict.txt" is not supplied. This is because the grouping function requires (*group_runs()* within func.py) that the sdds file names are suffixed with "_k.sdds", where *k* is an integer (starting from *1*) denoting a repeated measurement. For example, one could use the following naming convention in their custom "file_dict.txt":
 
@@ -129,3 +138,5 @@ I.e., the order of arguments within a command line call doesn't matter, as long 
 			{"input_data/EXAMPLE_2019_01_01_00_00_02.data", "NAME_3.sdds"}
 		}
 	Note: The grouping function searches the .sdds setting name using the regular expression *"(\S\*)\\_[0-9]+\\.sdds"*.
+
+4) The *-all* flag will use all given lin files, independent of their name.
