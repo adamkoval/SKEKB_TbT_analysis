@@ -475,7 +475,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --second_order_dispersion'
                     ' --union'
                     ' --model_dir '+str(model_path)+
-                    ' --outputdir '+str(os.path.join(phase_output_path, 'average_new/' ))+
+                    ' --outputdir '+str(os.path.join(phase_output_path, 'average/' ))+
                     ' --files '+str(allff))
         else:
             p = Popen([python_exe,
@@ -487,7 +487,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         '-e 10000',
                         '-b', 'm',
                         '--coupling', '0',
-                        '--output', os.path.join(phase_output_path, 'average_new/')])    
+                        '--output', os.path.join(phase_output_path, 'average/')])    
             p.wait()
         
     return print(" ********************************************\n",
