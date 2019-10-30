@@ -588,6 +588,31 @@ def calib_hist(python_exe, synched_sdds, phase_output, when='before'):
                         ' --pngpdf ' + form )
 
 
+def freq_spec(python_exe, sdds, model):
+    """
+    Function to call checkFrequency.py to make plot of frequency spectrum.
+    """
+    for plane in ['x', 'y']:
+        for form in ['png', 'pdf']:
+            os.system(python_exe + ' checkFrequency.py' +
+                        ' --sdds ' + sdds +
+                        ' --model ' + model +
+                        ' --axis ' + plane + 
+                        ' --pngpdf ' + form )
+
+
+# def damping_turns(python_exe, sdds):
+#     """
+#     Function to call checkExcitation.py to make plot of amplitude over turns.
+#     """
+#     for plane in ['x']:
+#         for form in ['png']:
+#             os.system(python_exe + ' checkExcitation.py' +
+#                         ' --sdds ' + sdds +
+#                         ' --axis ' + plane + 
+#                         ' --pngpdf ' + form )
+
+
 # ====================================================
 # To be used in async.py and calibration.py
 # ====================================================

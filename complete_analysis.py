@@ -12,7 +12,7 @@ import argparse
 import os
 import sys
 
-from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist
+from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec, damping_turns
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required arguments')
@@ -33,6 +33,9 @@ parser.add_argument('--all_at_once', '-all',
 parser.add_argument('--harmonic1', '-h1',
                     action='store_true',
                     help='Harmonic analysis without knowledge of BPM synch. This is enough to obtain tunes.')
+parser.add_argument('--plotfreq1', '-pf1',
+                    action='store_true',
+                    help='Plotting of frequency spectrum.')
 parser.add_argument('--phase1', '-p1',
                     action='store_true',
                     help='Phase analysis of harmonic1 output without BPM synch knowledge.')
@@ -145,6 +148,11 @@ if args.harmonic1 == True:
                       nturns, str(0.04), lattice, gsad)
 else: pass
 
+
+if args.plotfreq1 == True:
+    # damping_turns(python_exe, unsynched_sdds)
+    freq_spec(python_exe, unsynched_sdds, model_path)
+else: pass
 
 # Phase analysis 1
 if args.phase1 == True:
