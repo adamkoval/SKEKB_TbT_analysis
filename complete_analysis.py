@@ -12,7 +12,7 @@ import argparse
 import os
 import sys
 
-from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec, damping_turns
+from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required arguments')

@@ -50,4 +50,4 @@ file_dict = file_dict_example.txt
 #
 gsad = /SAD/bin/gs -env skekb
 python_exe = python2.7
-python3_exe = /opt/anaconda/anaconda3/bin/python3
+python3_exe = /nfs/sadnas1a/users/jkeintze/py3/bin/python
