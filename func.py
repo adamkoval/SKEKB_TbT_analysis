@@ -293,7 +293,7 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --to_write spectra bpm_summary lin'
                     ' --clean'
                     ' --max_peak ' + max_peak +
-                    ' --tune_clean_limit 1e-5')        
+                    ' --tune_clean_limit 1e-4')        
         else:
             p = Popen([python_exe,
                     BetaBeatsrc_path + 'hole_in_one.py',
@@ -309,7 +309,7 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     '--nattunex=' + model_tunex,
                     '--nattuney=' + model_tuney,
                     '--tolerance=' + tune_range,
-                    '--tune_clean_limit=1e-5']) # changed from 1e-5 to 10e-5 so that fewer BPMs are cleaned
+                    '--tune_clean_limit=1e-4']) # changed from 1e-5 to 10e-5 so that fewer BPMs are cleaned
             p.wait()
         finish = time.time() - start
         timer('Harmonic analysis', i, len(sdds_files), finish)
@@ -599,6 +599,63 @@ def freq_spec(python_exe, sdds, model):
                         ' --model ' + model +
                         ' --axis ' + plane + 
                         ' --pngpdf ' + form )
+
+
+def chromatic_analysis(model_path, phase_output):
+    """
+    Computes chromaticity and writes them to an output file.
+    WARNING: ONLY TESTED FOR PYTHON 3!
+    """
+    for plane in ['x', 'y']:
+        fo2 = os.path.join(phase_output, 'average/getkick.out')
+        fo3 = os.path.join(phase_output, 'average/kick_' + plane + '.tfs')
+        if os.path.isfile(fo3): ff = fo3
+        else: ff = fo2
+
+        with open(ff) as fo:
+            lines = fo.readlines()
+        fo.close()
+        dpp_meas = np.array([float(lines[11+i].split()[1]) for i in range(len(lines[11:]))])
+
+        Q = np.array([float(lines[11+i].split()[3]) for i in range(len(lines[11:]))])
+        # Q_err = [float(lines[11+i].split()[4]) for i in range(len(lines[11:]))]
+        
+        fit, cov = np.polyfit(dpp_meas, Q, 3, cov=True)
+        poly = np.poly1d(fit)
+        chrom1 = np.polyder(poly)
+        chrom2 = np.polyder(chrom1)
+        chrom3 = np.polyder(chrom2)
+        dpp = np.arange(-1.05*max(abs(dpp_meas)),1.05*max(abs(dpp_meas)),1e-4)
+
+        model = os.path.join(model_path, 'tune_over_mom.txt')
+        with open(model) as mo:
+            lines = mo.readlines()
+        mo.close()
+
+        col = 1 if plane == 'x' else 2
+        Q_mdl = np.array([float(lines[1+i].split()[col]) for i in range(len(lines[1:]))])
+        dpp_mdl = np.array([float(lines[1+i].split()[0]) for i in range(len(lines[1:]))])
+        Q_mdl = np.array([Q_mdl[i] for i in range(len(Q_mdl)) if abs(dpp_mdl[i])<0.0025])
+        dpp_mdl = np.array([dpp_mdl[i] for i in range(len(dpp_mdl)) if abs(dpp_mdl[i])<0.0025])
+        
+        fit_mdl, cov_mdl = np.polyfit(dpp_mdl, Q_mdl, 3, cov=True)
+        poly_mdl = np.poly1d(fit_mdl)
+        chrom1_mdl = np.polyder(poly_mdl)
+        chrom2_mdl = np.polyder(chrom1_mdl)
+        chrom3_mdl = np.polyder(chrom2_mdl)
+        
+        chromaticity = os.path.join(phase_output, 'average_largerQlimit/chromaticity_'+plane+'.tfs')
+        chrom = open(chromaticity, 'w')
+        chrom.write("@ Q"+plane+' '+str(poly(0.0))+' +/- '+str(np.sqrt(cov[3][3]))+'\n')
+        chrom.write("@ Q'"+plane+' '+str(chrom1(0.0))+' +/- '+str(np.sqrt(cov[2][2]))+'\n')
+        chrom.write("@ Q''"+plane+' '+str(chrom2(0.0))+' +/- '+str(2*np.sqrt(cov[1][1]))+'\n')
+        chrom.write("@ Q'''"+plane+' '+str(chrom3(0.0))+' +/- '+str(6*np.sqrt(cov[0][0]))+'\n\n')
+        chrom.write("@ MDL Q"+plane+' '+str(poly_mdl(0.0))+' +/- '+str(np.sqrt(cov_mdl[3][3]))+'\n')
+        chrom.write("@ MDL Q'"+plane+' '+str(chrom1_mdl(0.0))+' +/- '+str(np.sqrt(cov_mdl[2][2]))+'\n')
+        chrom.write("@ MDL Q''"+plane+' '+str(chrom2_mdl(0.0))+' +/- '+str(2*np.sqrt(cov_mdl[1][1]))+'\n')
+        chrom.write("@ MDL Q'''"+plane+' '+str(chrom3_mdl(0.0))+' +/- '+str(6*np.sqrt(cov_mdl[0][0]))+'\n')
+        chrom.close()
+        
 
 
 # def damping_turns(python_exe, sdds):

@@ -12,7 +12,9 @@ import argparse
 import os
 import sys
 
-from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec
+# from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec
+from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis
+from func import asynch_cmap, bpm_calibration, calib_hist, freq_spec, chromatic_analysis
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required arguments')
@@ -159,6 +161,7 @@ if args.phase1 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
+    chromatic_analysis(model_path, unsynched_phase_output)         
 else: pass
 
 
@@ -190,6 +193,7 @@ if args.phase2 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    synched_harmonic_output, synched_phase_output, synched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
+    chromatic_analysis(model_path, synched_phase_output)              
 else: pass
 
 
@@ -217,6 +221,7 @@ if args.phase3 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    calibrated_harmonic_output, calibrated_phase_output, synched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
+    chromatic_analysis(model_path, calibrated_phase_output)
 else: pass
 
 
