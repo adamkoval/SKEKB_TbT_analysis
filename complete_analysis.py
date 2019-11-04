@@ -161,7 +161,8 @@ if args.phase1 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    unsynched_harmonic_output, unsynched_phase_output, unsynched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
-    chromatic_analysis(model_path, unsynched_phase_output)         
+    try: chromatic_analysis(model_path, unsynched_phase_output)         
+    except: pass
 else: pass
 
 
@@ -193,7 +194,8 @@ if args.phase2 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    synched_harmonic_output, synched_phase_output, synched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
-    chromatic_analysis(model_path, synched_phase_output)              
+    try: chromatic_analysis(model_path, synched_phase_output)    
+    except: pass
 else: pass
 
 
@@ -221,7 +223,8 @@ if args.phase3 == True:
     phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                    calibrated_harmonic_output, calibrated_phase_output, synched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
-    chromatic_analysis(model_path, calibrated_phase_output)
+    try: chromatic_analysis(model_path, calibrated_phase_output)
+    except: pass
 else: pass
 
 
