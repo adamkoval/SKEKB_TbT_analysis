@@ -560,14 +560,14 @@ def asynch_cmap(python_exe, sdds_path, phase_output_path, when='before'):
                  "********************************************")
 
 
-def bpm_calibration(synched_sdds, synched_harmonic_output, synched_phase_output,
+def bpm_calibration(python_exe, synched_sdds, synched_harmonic_output, synched_phase_output,
                     calibrated_harmonic_output, calibrated_phase_output, ringID):
     """
     Function to call calibration.py script to calibrate amplitudes.
-    Until now: works only with python 2, as tfs_pandas is required.
+    Warning: ONLY tested using python 3 !
     """
     for plane in ['x','y']:
-        os.system('/afs/cern.ch/work/o/omc/anaconda/bin/python calibration.py'
+        os.system(python_exe + ' calibration.py'
                     ' --sdds ' + synched_sdds +
                     ' --plane ' + plane +
                     ' --ring ' + ringID )

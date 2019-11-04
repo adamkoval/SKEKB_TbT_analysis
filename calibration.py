@@ -14,8 +14,9 @@ import os
 import pandas
 from func import get_dict_colormap, read_bpms, read_bet_phase, read_bet_amp, reject_outliers
 import sys
-sys.path.append('/afs/cern.ch/work/j/jkeintze/public/Beta-Beat.src/')
-from tfs_files import tfs_pandas
+# sys.path.append('/afs/cern.ch/work/j/jkeintze/public/Beta-Beat.src/')
+# from tfs_files import tfs_pandas
+import tfs
 
 
 
@@ -79,7 +80,7 @@ if __name__ == "__main__":
 
     
     df_calibration = pandas.DataFrame(zip(all_bpms, av_cal_bpms, av_cal_err_bpms), columns=['NAME', 'CALIBRATION', 'ERROR_CALIBRATION'])
-    tfs_pandas.write_tfs(options.sdds + '../calibration_'+options.plane+'.tfs', df_calibration, save_index=False)
+    tfs.write(options.sdds + '../calibration_'+options.plane+'.tfs', df_calibration, save_index=False)
 
     if not os.path.exists(calibrated_harmonic_output):
         os.system('mkdir ' + calibrated_harmonic_output)
@@ -96,10 +97,10 @@ if __name__ == "__main__":
 
     lins = [lin for lin in os.listdir(synched_harmonic_output) if 'lin'+options.plane in lin]
     for lin in lins:
-        df_lin = tfs_pandas.read_tfs(os.path.join(synched_harmonic_output, lin))
+        df_lin = tfs.read(os.path.join(synched_harmonic_output, lin))
         df_lin['AMP'+options.plane.upper()] = df_lin['AMP'+options.plane.upper()]*df_calibration['CALIBRATION']
         df_lin['ERRAMP'+options.plane.upper()] = df_lin['AMP'+options.plane.upper()]*df_calibration['ERROR_CALIBRATION']
-        tfs_pandas.write_tfs(os.path.join(calibrated_harmonic_output, lin), df_lin, save_index=False)
+        tfs.write(os.path.join(calibrated_harmonic_output, lin), df_lin, save_index=False)
 
     print(" ********************************************\n",
             "BPM calibration finished.\n",

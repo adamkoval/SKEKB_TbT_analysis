@@ -211,7 +211,7 @@ else: pass
 
 # Calculation of BPM calibration and writing lin files and calib harmonic folder
 if args.calib == True:
-    bpm_calibration(synched_sdds, synched_harmonic_output, synched_phase_output,
+    bpm_calibration(python_exe, synched_sdds, synched_harmonic_output, synched_phase_output,
                     calibrated_harmonic_output, calibrated_phase_output, ringID)
 else: pass
 
