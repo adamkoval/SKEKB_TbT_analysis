@@ -1,0 +1,188 @@
+
+from optparse import OptionParser
+import numpy as np 
+import matplotlib.pyplot as plt
+import os
+import sys
+
+
+def read_phase(ff):
+    with open(ff) as f: lines=f.readlines()
+    f.close()
+    S = [float(lines[10+i].split()[0]) for i in range(len(lines[10:]))]
+    deltaph = [float(lines[10+i].split()[8]) for i in range(len(lines[10:]))]
+    errdeltaph = [float(lines[10+i].split()[8]) for i in range(len(lines[10:]))]
+
+    return S, deltaph, errdeltaph
+
+
+def read_beta_amp(ff):
+    with open(ff) as f: lines=f.readlines()
+    f.close()
+    S = [float(lines[12+i].split()[1]) for i in range(len(lines[12:]))]
+    deltabet = np.array([float(lines[12+i].split()[7]) for i in range(len(lines[12:]))])*100
+    errdeltabet = np.array([float(lines[12+i].split()[8]) for i in range(len(lines[12:]))])*100
+
+    return S, deltabet, errdeltabet
+
+
+def read_beta_ph(ff):
+    with open(ff) as f: lines=f.readlines()
+    f.close()
+    S = [float(lines[15+i].split()[1]) for i in range(len(lines[15:]))]
+    deltabet = np.array([float(lines[15+i].split()[10]) for i in range(len(lines[15:]))])*100
+    errdeltabet = np.array([float(lines[15+i].split()[11]) for i in range(len(lines[15:]))])*100
+
+    return S, deltabet, errdeltabet
+
+
+def read_norm_disp(ff):
+    with open(ff) as f: lines=f.readlines()
+    f.close()
+    S = [float(lines[10+i].split()[1]) for i in range(len(lines[10:]))]
+    ndx = [float(lines[10+i].split()[5]) for i in range(len(lines[10:]))]
+    errndx = [float(lines[10+i].split()[6]) for i in range(len(lines[10:]))]
+    dx = [float(lines[10+i].split()[10]) for i in range(len(lines[10:]))]
+    errdx = [float(lines[10+i].split()[11]) for i in range(len(lines[10:]))]
+
+    return S, ndx, errndx, dx, errdx
+
+
+def read_disp(ff):
+    with open(ff) as f: lines=f.readlines()
+    f.close()
+    S = [float(lines[10+i].split()[1]) for i in range(len(lines[10:]))]
+    dx = [float(lines[10+i].split()[9]) for i in range(len(lines[10:]))]
+    errdx = [float(lines[10+i].split()[10]) for i in range(len(lines[10:]))]
+    deltadx = np.array([float(lines[10+i].split()[11]) for i in range(len(lines[10:]))])*100
+    errdeltadx = np.array([float(lines[10+i].split()[12]) for i in range(len(lines[10:]))])*100
+    d2x = [float(lines[10+i].split()[16]) for i in range(len(lines[10:]))]
+    errd2x = [float(lines[10+i].split()[17]) for i in range(len(lines[10:]))]
+
+    return S, dx, errdx, deltadx, errdeltadx, d2x, errd2x
+
+
+def read_model(ff):
+    with open(ff) as f: lines=f.readlines()
+    f.close()
+    Smdl = [float(lines[14+i].split()[2]) for i in range(len(lines[14:]))]
+    betxmdl = np.array([float(lines[14+i].split()[4]) for i in range(len(lines[14:]))])
+    betymdl = np.array([float(lines[14+i].split()[5]) for i in range(len(lines[14:]))])
+    dxmdl = np.array([float(lines[14+i].split()[12]) for i in range(len(lines[14:]))])
+    dymdl = np.array([float(lines[14+i].split()[13]) for i in range(len(lines[14:]))])
+
+    return Smdl, betxmdl, betymdl, dxmdl, dymdl
+
+
+
+def plot_delta(direc, name, axis, S, delta, errdelta, pngpdf, num):
+    fix = 10
+    fiy = 3
+    num = 1
+    size=22
+    caps=6
+    mark=7.5
+
+    plt.figure(num, figsize=(fix, fiy))
+    plt.errorbar(np.array(S)*1e-3, delta, yerr=errdelta, fmt = 'o', ms=mark, mec= '#d62728', mfc = 'None', capsize=caps, c = '#d62728', label = 'Measurement')
+    plt.tick_params('both', labelsize=size)
+    plt.xlabel('S [km]', fontsize=size)
+    if name == 'phase':
+        plt.ylabel(r'$\Delta \mu_{x}$ $[2 \pi]$', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \mu_{y}$ $[2 \pi]$', fontsize=size) 
+    if name == 'beta_amp':
+        plt.ylabel(r'$\Delta \beta_{x}^{amp}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{amp}$ [%]', fontsize=size) 
+    if name == 'beta_ph':
+        plt.ylabel(r'$\Delta \beta_{x}^{ph}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{ph}$ [%]', fontsize=size) 
+    if name == 'disp':
+        plt.ylabel(r'$\Delta \eta_{x}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \eta_{y}$ [%]', fontsize=size) 
+    plt.xlim(0, 3.016)
+    plt.tight_layout()
+    plt.savefig(os.path.join(direc, name+'_'+axis+'_BEAT.'+pngpdf), bbox_inches='tight')
+    plt.close(num)
+    num=num+1
+
+    return num
+
+
+def plot_abs(direc, name, axis, S, Smdl, val, errval, valmdl, pngpdf, num):
+    fix = 10
+    fiy = 4
+    num = 1
+    size=22
+    caps=6
+    mark=7.5
+
+    plt.figure(num, figsize=(fix, fiy))
+    plt.plot(np.array(Smdl)*1e-3, valmdl, c = '#1f77b4', label='Model')
+    plt.errorbar(np.array(S)*1e-3, val, yerr=errval, fmt = 'o', ms=mark, mec= '#d62728', mfc = 'None', capsize=caps, c = '#d62728', label = 'Measurement')
+    plt.tick_params('both', labelsize=size)
+    plt.xlabel('S [km]', fontsize=size)
+    if name == 'disp':
+        plt.ylabel(r'$\eta_{x}$ [m]', fontsize=size) if axis =='x' else plt.ylabel(r'$\eta_{y}$ [m]', fontsize=size) 
+    if name == 'norm_disp':
+        plt.ylabel(r'$\eta_{n,x}$ [$\sqrt{\mathregular{m}}$]', fontsize=size) if axis =='x' else plt.ylabel(r'$\eta_{n,y}$ [$\sqrt{\mathregular{m}}$]', fontsize=size) 
+    plt.xlim(0, 3.016)
+    plt.legend(loc = 9, ncol = 2, fontsize=size, bbox_to_anchor=(0.5, 1.42), fancybox=True,  numpoints=1, scatterpoints = 1)
+    plt.tight_layout()
+    plt.savefig(os.path.join(direc, name+'_'+axis+'_ABS.'+pngpdf), bbox_inches='tight')
+    plt.close(num)
+    num=num+1
+
+    return num
+
+
+def main():
+    parser = OptionParser()
+    parser.add_option("-d", "--dir",  dest="dir", help="Directory of optics analysis output")
+    parser.add_option("-m", "--model",  dest="model", help="Model file.")
+    parser.add_option("-r", "--ring",  dest="ring", help="Ring ID, HER or LER")
+    parser.add_option("-a", "--axis",  dest="axis", help="Plane, x or y")
+    parser.add_option("-p", "--pngpdf",  dest="pngpdf", help="Output format, PNG oder PDF")
+    (options, args) = parser.parse_args()
+
+
+    if not os.path.exists(os.path.join(options.dir, 'average')): 
+        print(" ********************************************\n",
+                "Plot optics:\n",
+                'I could not find an average output folder..\n',
+                'I stop now. \n',    
+                "********************************************")
+        sys.exit()
+
+    num = 1
+
+    files = [ff for ff in os.listdir(os.path.join(options.dir, 'average')) if (options.axis+'.tfs') in ff]
+    # print(files)
+
+    Smdl, betxmdl, betymdl, dxmdl, dymdl = read_model(os.path.join(options.model, 'twiss.dat'))
+
+    if 'phase_'+options.axis+'.tfs' in files:
+        S, deltaph, errdeltaph = read_phase(os.path.join(options.dir, 'average/phase_'+options.axis+'.tfs'))
+        num = plot_delta(os.path.join(options.dir, 'average'), 'phase', options.axis, S, deltaph, errdeltaph, options.pngpdf, num)
+
+    if 'beta_amplitude_'+options.axis+'.tfs' in files:
+        S, deltabet, errdeltabet = read_beta_amp(os.path.join(options.dir, 'average/beta_amplitude_'+options.axis+'.tfs'))
+        num = plot_delta(os.path.join(options.dir, 'average'), 'beta_amp', options.axis, S, deltabet, errdeltabet, options.pngpdf, num)
+    
+    if 'beta_phase_'+options.axis+'.tfs' in files:
+        S, deltabet, errdeltabet = read_beta_ph(os.path.join(options.dir, 'average/beta_phase_'+options.axis+'.tfs'))
+        num = plot_delta(os.path.join(options.dir, 'average'), 'beta_ph', options.axis, S, deltabet, errdeltabet, options.pngpdf, num)
+    
+    if 'normalised_dispersion_'+options.axis+'.tfs' in files:
+        S, ndx, errndx, dx, errdx = read_norm_disp(os.path.join(options.dir, 'average/normalised_dispersion_'+options.axis+'.tfs'))
+        ndmdl = dxmdl/np.sqrt(betxmdl) if options.axis == 'x' else dymdl/np.sqrt(betymdl)
+        num = plot_abs(os.path.join(options.dir, 'average'), 'norm_disp', options.axis, S, Smdl, ndx, errndx, ndmdl, options.pngpdf, num)
+
+    if 'dispersion_'+options.axis+'.tfs' in files:
+        dmdl = dxmdl if options.axis == 'x' else dymdl
+        S, dx, errdx, deltadx, errdeltadx, d2x, errd2x = read_disp(os.path.join(options.dir, 'average/dispersion_'+options.axis+'.tfs'))
+        num = plot_delta(os.path.join(options.dir, 'average'), 'disp', options.axis, S, deltadx, errdeltadx, options.pngpdf, num)
+        num = plot_abs(os.path.join(options.dir, 'average'), 'disp', options.axis, S, Smdl, dx, errdx, dmdl, options.pngpdf, num)
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+

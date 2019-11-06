@@ -696,6 +696,21 @@ def chromatic_analysis(model_path, phase_output):
                     "********************************************")
 
 
+def plot_optics(python_exe, phase_output, model, ringID):
+    """
+    Function to call script to plot all optics from OMC3 output.
+    WARNING: only tested with python 3!
+    """
+    for axis in ['x', 'y']:
+        for pngpdf in ['png', 'pdf']:
+            os.system(python_exe + ' checkOptics.py ' +
+                        ' --dir ' + phase_output +
+                        ' --model ' + model + 
+                        ' --axis ' + axis +
+                        ' --ring ' + ringID +
+                        ' --pngpdf ' + pngpdf )
+
+
 # def damping_turns(python_exe, sdds):
 #     """
 #     Function to call checkExcitation.py to make plot of amplitude over turns.

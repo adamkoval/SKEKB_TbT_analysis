@@ -15,6 +15,7 @@ import sys
 # from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec
 from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis
 from func import asynch_cmap, bpm_calibration, calib_hist, freq_spec, chromatic_analysis
+from func import plot_optics
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required arguments')
@@ -71,6 +72,9 @@ parser.add_argument('--plotcalib2', '-pc2',
 parser.add_argument('--omc3', '-o3',
                     action='store_true',
                     help='Use the new OMC3-analysis instead of python2-BetaBeat.src.')
+parser.add_argument('--plotoptics2', '-po2',
+                    action='store_true',
+                    help='Plots the optics repository after BPM synchronisation.')
 args = parser.parse_args()
 
 # Read in destinations
@@ -198,6 +202,9 @@ if args.phase2 == True:
     except: pass
 else: pass
 
+if args.plotoptics2 == True:
+    plot_optics(python_exe, synched_phase_output, model_path, ringID)
+else: pass
 
 # Plotting BPM synchronisation post-fix
 if args.plotasynch2 == True:
