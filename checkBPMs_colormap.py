@@ -83,7 +83,7 @@ row_length = len(bpms)
 # Plot
 size = 32
 fig = plt.figure(figsize=(15, 11)) #17,11 AK
-plt.pcolormesh(hor_ax, ver_ax, Z, vmin=-0.45, vmax=0.45)#, vmin=-0.45, vmax=0.45)#, cmap = cm)
+plt.pcolormesh(hor_ax, ver_ax, Z, vmin=-0.45, vmax=0.45, cmap = 'jet')#, vmin=-0.45, vmax=0.45)#, cmap = cm)
 bar = plt.colorbar()
 if axis.lower() == 'x': bar.set_label('$\Delta\mu_{x}$ [2$\mathregular{\pi}$]', fontsize=size)
 else: bar.set_label('$\Delta\mu_{y}$ [2$\mathregular{\pi}$]', fontsize=size)

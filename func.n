@@ -528,7 +528,8 @@ CreatePlainDeck[fname_,n_:"RING"]:=Module[{fn=fname,p,f},
   FFS["TYPE;",f];
   Write[f,"LINE ",n," ="];
   WriteBeamLine[f,Format->"MAIN"];
-  Write[f,";\nFFS USE =",n,";"];
+  ! Write[f,";\nFFS USE =",n,";"];
+  Write[f, ";"];
   Close[f]];
 
 

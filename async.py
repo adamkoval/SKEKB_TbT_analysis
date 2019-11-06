@@ -3,8 +3,8 @@ Script for analysing synchronisation of BPMs from phase data (output from measur
 This script outputs a text file discribing the number of turns each BPM is out of synch by.
 
 Created on Thu Oct 18 14:56:32 2018
-Date: 16/10/2019 
-Author: Adam Koval
+Date: 06/11/2019 
+Author: Jacqueline Keintzel, Adam Koval
 """
 from __future__ import print_function
 import sys
@@ -44,10 +44,11 @@ for count, run in enumerate(os.listdir(args.pod)):
     deltaphtot = read_phasetot(datapath, args.axis)
     
     level = []
-    deltaQ = 0.5
-    deltaQ2 = 0.15 
+    deltaQ = 0.90
+    deltaQ2 = 0.10 
 
-    tune = Qx if args.axis == 'x' else Qy
+    tune = (1.-Qx) if args.axis == 'x' else (1.-Qy)
+    #tune = (Qx) if args.axis == 'x' else (Qy)
     j=0
     i=0
     while j < len(namesmdl):
@@ -57,6 +58,10 @@ for count, run in enumerate(os.listdir(args.pod)):
                     level.append('-1') if args.ring == 'her' else level.append('+1') 
                 elif deltaphtot[i] / tune <= -deltaQ:
                     level.append('+1') if args.ring == 'her' else level.append('-1')
+                elif deltaphtot[i] / tune >= (deltaQ-deltaQ2):
+                    level.append('-3') if args.ring == 'her' else level.append('+3') 
+                elif deltaphtot[i] / tune <= -(deltaQ-deltaQ2):
+                    level.append('+3') if args.ring == 'her' else level.append('-3')
                 elif deltaphtot[i] / tune >= deltaQ2: 
                     level.append('+2') if args.ring == 'her' else  level.append('-2')
                 elif deltaphtot[i] / tune <= -deltaQ2: 
@@ -64,19 +69,20 @@ for count, run in enumerate(os.listdir(args.pod)):
                 else:
                     level.append('0')
             else:
-                level.append('0')
+                level.append('u')
                 i=i-1
             i=i+1
             j=j+1
         except IndexError:
             break
-                    
+    print('\n')                
     while len(level) < len(namesmdl): level.append('0')
 
     for i in range(len(level)):
         if 1 < i < len(level)-1:
-            if level[i-1] == level[i+1] : 
-                if level[i] == '0': level[i] = level[i-1]
+            if (level[i-1] == level[i+1]) != 'u' : 
+                if level[i] == 'u': level[i] = level[i-1]
+            else: level[i] = '0'
 
     file = open(args.aod + run + '.txt', 'w')
     file.write('{\n')
