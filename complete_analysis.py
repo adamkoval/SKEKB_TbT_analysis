@@ -54,6 +54,9 @@ parser.add_argument('--harmonic2', '-h2',
 parser.add_argument('--phase2', '-p2',
                     action='store_true',
                     help='Phase analysis of harmonic2 output with knowledge of BPM synch.')
+parser.add_argument('--plotoptics2', '-po2',
+                    action='store_true',
+                    help='Plots the optics repository after BPM synchronisation.')
 parser.add_argument('--plotasynch2', '-pa2',
                     action='store_true',
                     help='Plotting of BPM synchronisation from phase2 output, after synch fix is applied.')
@@ -72,9 +75,6 @@ parser.add_argument('--plotcalib2', '-pc2',
 parser.add_argument('--omc3', '-o3',
                     action='store_true',
                     help='Use the new OMC3-analysis instead of python2-BetaBeat.src.')
-parser.add_argument('--plotoptics2', '-po2',
-                    action='store_true',
-                    help='Plots the optics repository after BPM synchronisation.')
 args = parser.parse_args()
 
 # Read in destinations

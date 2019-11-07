@@ -75,6 +75,8 @@ Analysis of BPM synchronisation from phase1 output.
 sdds conversion and harmonic analysis with knowledge of BPM synch.
 - **"- -phase2"/"-p2":**
 Phase analysis of harmonic2 output with knowledge of BPM synch.
+- **"- -plotoptics22"/"-po2":**
+Plots the optics repository after BPM synchronisation.
 - **"- -plotasynch2"/"-pa2":**
 Plotting of BPM synchronisation from phase2 output, after synch fix is applied.
 - **"- -calib"/"-c":**
