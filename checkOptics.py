@@ -56,8 +56,12 @@ def read_disp(ff):
     errdx = [float(lines[10+i].split()[10]) for i in range(len(lines[10:]))]
     deltadx = np.array([float(lines[10+i].split()[11]) for i in range(len(lines[10:]))])*100
     errdeltadx = np.array([float(lines[10+i].split()[12]) for i in range(len(lines[10:]))])*100
-    d2x = [float(lines[10+i].split()[16]) for i in range(len(lines[10:]))]
-    errd2x = [float(lines[10+i].split()[17]) for i in range(len(lines[10:]))]
+    try:
+        d2x = [float(lines[10+i].split()[16]) for i in range(len(lines[10:]))]
+        errd2x = [float(lines[10+i].split()[17]) for i in range(len(lines[10:]))]
+    except:
+        d2x=[0]
+        errd2x=[0]
 
     return S, dx, errdx, deltadx, errdeltadx, d2x, errd2x
 
@@ -70,8 +74,10 @@ def read_model(ff):
     betymdl = np.array([float(lines[14+i].split()[5]) for i in range(len(lines[14:]))])
     dxmdl = np.array([float(lines[14+i].split()[12]) for i in range(len(lines[14:]))])
     dymdl = np.array([float(lines[14+i].split()[13]) for i in range(len(lines[14:]))])
-
-    return Smdl, betxmdl, betymdl, dxmdl, dymdl
+    xmdl = np.array([float(lines[14+i].split()[16]) for i in range(len(lines[14:]))])
+    ymdl = np.array([float(lines[14+i].split()[17]) for i in range(len(lines[14:]))])
+    
+    return Smdl, betxmdl, betymdl, dxmdl, dymdl, xmdl, ymdl
 
 
 
@@ -119,6 +125,8 @@ def plot_abs(direc, name, axis, S, Smdl, val, errval, valmdl, pngpdf, num):
     plt.xlabel('S [km]', fontsize=size)
     if name == 'disp':
         plt.ylabel(r'$\eta_{x}$ [m]', fontsize=size) if axis =='x' else plt.ylabel(r'$\eta_{y}$ [m]', fontsize=size) 
+    if name == 'disp2':
+        plt.ylabel(r'$\eta_{x}^{(2)}$ [m]', fontsize=size) if axis =='x' else plt.ylabel(r'$\eta_{y}^{(2)}$ [m]', fontsize=size)
     if name == 'norm_disp':
         plt.ylabel(r'$\eta_{n,x}$ [$\sqrt{\mathregular{m}}$]', fontsize=size) if axis =='x' else plt.ylabel(r'$\eta_{n,y}$ [$\sqrt{\mathregular{m}}$]', fontsize=size) 
     plt.xlim(0, 3.016)
@@ -154,7 +162,7 @@ def main():
     files = [ff for ff in os.listdir(os.path.join(options.dir, 'average')) if (options.axis+'.tfs') in ff]
     # print(files)
 
-    Smdl, betxmdl, betymdl, dxmdl, dymdl = read_model(os.path.join(options.model, 'twiss.dat'))
+    Smdl, betxmdl, betymdl, dxmdl, dymdl, xmdl, ymdl = read_model(os.path.join(options.model, 'twiss.dat'))
 
     if 'phase_'+options.axis+'.tfs' in files:
         S, deltaph, errdeltaph = read_phase(os.path.join(options.dir, 'average/phase_'+options.axis+'.tfs'))
@@ -179,6 +187,32 @@ def main():
         num = plot_delta(os.path.join(options.dir, 'average'), 'disp', options.axis, S, deltadx, errdeltadx, options.pngpdf, num)
         num = plot_abs(os.path.join(options.dir, 'average'), 'disp', options.axis, S, Smdl, dx, errdx, dmdl, options.pngpdf, num)
 
+        if len(d2x) > 1:
+            tw_files = [ff for ff in os.listdir(options.model) if 'twiss_dp0' in ff ]
+            dpp = np.arange(-1e-3, 1.1e-3, 1e-4)
+            orbit=[]
+            for ff in tw_files:
+                valmdl = read_model(os.path.join(options.model, ff))
+                orbit.append(valmdl[5]) if options.axis == 'x' else orbit.append(valmdl[6])
+            orbit=np.transpose(orbit)
+            
+            d2mdl = []
+            dmdl = []
+            for i in range(len(orbit)):
+                
+                diff1 = np.zeros(dpp.shape,np.float)
+                diff2 = np.zeros(dpp.shape,np.float)
+                
+                diff1[0:-1] = np.diff(orbit[i])/np.diff(dpp)
+                diff1[-1] = (orbit[i][-1] - orbit[i][-2])/(dpp[-1] - dpp[-2])
+                diff2[0:-1] = np.diff(diff1)/np.diff(dpp)
+                diff2[-1] = (diff1[-1] - diff1[-2])/(dpp[-1] - dpp[-2])
+
+                dmdl.append(diff1[10])
+                d2mdl.append(diff2[10])
+
+            num = plot_abs(os.path.join(options.dir, 'average'), 'disp2', options.axis, S, Smdl, d2x, errd2x, d2mdl, options.pngpdf, num)
+            
 
 if __name__ == "__main__":
     main()
