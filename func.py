@@ -845,6 +845,33 @@ def read_bet_amp(folder, plane):
     return beta_amp, beta_amp_err
 
 
+# def read_dx(folder, plane):
+#     """
+#     Reads dispersion_*.tfs and returns the disperison.
+#     """
+#     file = os.path.join(folder, 'dispersion_' + plane + '.tfs')
+#     with open(file) as fo:
+#         lines = fo.readlines()[10:]
+#     fo.close()
+#     dx = [float(lines[i].split()[9]) for i in range(len(lines))]
+#     dx_err = [float(lines[i].split()[10]) for i in range(len(lines))]
+#     bpms_dx = [float(lines[i].split()[0]) for i in range(len(lines))]
+#     return dx, dx_err, bpms_dx
+
+
+# def read_ndx(folder, plane):
+#     """
+#     Reads normalised_dispersion_*.tfs and returns the disperison.
+#     """
+#     file = os.path.join(folder, 'normalised_dispersion_' + plane + '.tfs')
+#     with open(file) as fo:
+#         lines = fo.readlines()[10:]
+#     fo.close()
+#     dx_n = [float(lines[i].split()[10]) for i in range(len(lines))]
+#     dx_n_err = [float(lines[i].split()[11]) for i in range(len(lines))]
+#     return dx_n, dx_n_err
+
+
 def reject_outliers(data, m=2):
     """
     Removes outliers in a list.
