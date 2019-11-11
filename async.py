@@ -75,7 +75,7 @@ for count, run in enumerate(os.listdir(args.pod)):
             j=j+1
         except IndexError:
             break
-    print('\n')                
+    #print('\n')                
     while len(level) < len(namesmdl): level.append('0')
 
     for i in range(len(level)):
@@ -83,7 +83,10 @@ for count, run in enumerate(os.listdir(args.pod)):
             if (level[i-1] == level[i+1]) != 'u' : 
                 if level[i] == 'u': level[i] = level[i-1]
             else: level[i] = '0'
-
+    
+    for i in range(len(level)):
+        if level[i] == 'u': level[i]='0'
+    #print(level)
     file = open(args.aod + run + '.txt', 'w')
     file.write('{\n')
 
