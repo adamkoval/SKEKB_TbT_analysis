@@ -269,6 +269,7 @@ WriteTwissAll[fname_:string, nx0_, ny0_]:=
     ! WriteString[fw, "\n"];
     
     elems = LINE["NAME", "{MQS}*"];      
+    ! elems = LINE["NAME", "*"];      
     Scan[
         WriteString[fw, "  ",
           FormatColumn[#], "  ",
