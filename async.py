@@ -59,9 +59,9 @@ for count, run in enumerate(os.listdir(args.pod)):
                 elif deltaphtot[i] / tune <= -deltaQ:
                     level.append('+1') if args.ring == 'her' else level.append('-1')
                 elif deltaphtot[i] / tune >= (deltaQ-deltaQ2):
-                    level.append('-3') if args.ring == 'her' else level.append('+3') 
+                    level.append('-1') if args.ring == 'her' else level.append('+1') 
                 elif deltaphtot[i] / tune <= -(deltaQ-deltaQ2):
-                    level.append('+3') if args.ring == 'her' else level.append('-3')
+                    level.append('+1') if args.ring == 'her' else level.append('-1')
                 elif deltaphtot[i] / tune >= deltaQ2: 
                     level.append('+2') if args.ring == 'her' else  level.append('-2')
                 elif deltaphtot[i] / tune <= -deltaQ2: 

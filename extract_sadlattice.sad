@@ -5,11 +5,11 @@ ring$name="LER"; ! "HER"
 Library@Require["LEROptics","HEROptics"];
 ring=If[ring$name=="LER", LEROptics[] , HEROptics[] ];
 
-fn = "/nfs/sadnas1a/users/jkeintze/SKEKB_TbT_analysis/input_data_LER_2019_10_31/LER_2019_10_31_08_53_41.data";
+fn = "/nfs/sadnas1a/users/jkeintze/SKEKB_TbT_analysis/input_data_LER_OFFMOM_2019_11_13/LER_2019_11_13_22_54_39.data";
 dat0=Get[fn];
 opticsname=dat0[1,3];
 ring@ReadOpticsFile[opticsname];
 CALC;
-CreatePlainDeck["/nfs/sadnas1a/users/jkeintze/SKEKB_TbT_analysis/LER_2019_10_31_08_53_41.data", "RING"];
+CreatePlainDeck["/nfs/sadnas1a/users/jkeintze/SKEKB_TbT_analysis/lattice_LER_OFFMOM_2019_11_13.sad", "RING"];
 
 abort;

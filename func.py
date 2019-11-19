@@ -426,7 +426,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                         ' --ring '+str(ringID)+
                         ' --compensation none'
                         ' --second_order_dispersion'
-                        ' --union'
+                        #' --union'
                         ' --model_dir '+str(model_path)+
                         ' --outputdir '+str(os.path.join(phase_output_path, str(group)))+
                         ' --files '+str(group_s))
@@ -473,7 +473,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --ring '+str(ringID)+
                     ' --compensation none'
                     ' --second_order_dispersion'
-                    ' --union'
+                    #' --union'
                     ' --model_dir '+str(model_path)+
                     ' --outputdir '+str(os.path.join(phase_output_path, 'average/' ))+
                     ' --files '+str(allff))
@@ -627,33 +627,42 @@ def chromatic_analysis(model_path, phase_output):
             chrom2 = np.polyder(chrom1)
             chrom3 = np.polyder(chrom2)
 
-            model = os.path.join(model_path, 'tune_over_mom.txt')
-            with open(model) as mo:
-                lines = mo.readlines()
-            mo.close()
-
-            col = 1 if plane == 'x' else 2
-            Q_mdl = np.array([float(lines[1+i].split()[col]) for i in range(len(lines[1:]))])
-            dpp_mdl = np.array([float(lines[1+i].split()[0]) for i in range(len(lines[1:]))])
-            Q_mdl = np.array([Q_mdl[i] for i in range(len(Q_mdl)) if abs(dpp_mdl[i])<0.0025])
-            dpp_mdl = np.array([dpp_mdl[i] for i in range(len(dpp_mdl)) if abs(dpp_mdl[i])<0.0025])
-            
-            fit_mdl, cov_mdl = np.polyfit(dpp_mdl, Q_mdl, 3, cov=True)
-            poly_mdl = np.poly1d(fit_mdl)
-            chrom1_mdl = np.polyder(poly_mdl)
-            chrom2_mdl = np.polyder(chrom1_mdl)
-            chrom3_mdl = np.polyder(chrom2_mdl)
-            
-            chromaticity = os.path.join(phase_output, 'average_largerQlimit/chromaticity_'+plane+'.tfs')
+            chromaticity = os.path.join(phase_output, 'average/chromaticity_'+plane+'.tfs')
             chrom = open(chromaticity, 'w')
             chrom.write("@ Q"+plane+' '+str(poly(0.0))+' +/- '+str(np.sqrt(cov[3][3]))+'\n')
             chrom.write("@ Q'"+plane+' '+str(chrom1(0.0))+' +/- '+str(np.sqrt(cov[2][2]))+'\n')
             chrom.write("@ Q''"+plane+' '+str(chrom2(0.0))+' +/- '+str(2*np.sqrt(cov[1][1]))+'\n')
             chrom.write("@ Q'''"+plane+' '+str(chrom3(0.0))+' +/- '+str(6*np.sqrt(cov[0][0]))+'\n\n')
-            chrom.write("@ MDL Q"+plane+' '+str(poly_mdl(0.0))+' +/- '+str(np.sqrt(cov_mdl[3][3]))+'\n')
-            chrom.write("@ MDL Q'"+plane+' '+str(chrom1_mdl(0.0))+' +/- '+str(np.sqrt(cov_mdl[2][2]))+'\n')
-            chrom.write("@ MDL Q''"+plane+' '+str(chrom2_mdl(0.0))+' +/- '+str(2*np.sqrt(cov_mdl[1][1]))+'\n')
-            chrom.write("@ MDL Q'''"+plane+' '+str(chrom3_mdl(0.0))+' +/- '+str(6*np.sqrt(cov_mdl[0][0]))+'\n')
+
+            try:
+                model = os.path.join(model_path, 'tune_over_mom.txt')
+                with open(model) as mo:
+                    lines = mo.readlines()
+                mo.close()
+
+                col = 1 if plane == 'x' else 2
+                Q_mdl = np.array([float(lines[1+i].split()[col]) for i in range(len(lines[1:]))])
+                dpp_mdl = np.array([float(lines[1+i].split()[0]) for i in range(len(lines[1:]))])
+                Q_mdl = np.array([Q_mdl[i] for i in range(len(Q_mdl)) if abs(dpp_mdl[i])<0.0025])
+                dpp_mdl = np.array([dpp_mdl[i] for i in range(len(dpp_mdl)) if abs(dpp_mdl[i])<0.0025])
+                
+                fit_mdl, cov_mdl = np.polyfit(dpp_mdl, Q_mdl, 3, cov=True)
+                poly_mdl = np.poly1d(fit_mdl)
+                chrom1_mdl = np.polyder(poly_mdl)
+                chrom2_mdl = np.polyder(chrom1_mdl)
+                chrom3_mdl = np.polyder(chrom2_mdl)
+            
+                chrom.write("@ MDL Q"+plane+' '+str(poly_mdl(0.0))+' +/- '+str(np.sqrt(cov_mdl[3][3]))+'\n')
+                chrom.write("@ MDL Q'"+plane+' '+str(chrom1_mdl(0.0))+' +/- '+str(np.sqrt(cov_mdl[2][2]))+'\n')
+                chrom.write("@ MDL Q''"+plane+' '+str(chrom2_mdl(0.0))+' +/- '+str(2*np.sqrt(cov_mdl[1][1]))+'\n')
+                chrom.write("@ MDL Q'''"+plane+' '+str(chrom3_mdl(0.0))+' +/- '+str(6*np.sqrt(cov_mdl[0][0]))+'\n')
+            
+            except:
+                print(" ********************************************\n",
+                    "Chromatic analysis:\n",
+                    '"No accurate model found."\n',
+                    "********************************************")
+            
             chrom.close()
             
             dpp = np.arange(1.1*min((dpp_meas)),1.1*max((dpp_meas)),1e-4)
@@ -673,10 +682,16 @@ def chromatic_analysis(model_path, phase_output):
                 else: plt.ylabel(r'$Q_{x}$', fontsize=size)
                 plt.xlim(1.1*min((dpp_meas)),1.1*max((dpp_meas)))
                 plt.tight_layout()
-                plt.savefig(phase_output+'/average_largerQlimit/Chroma_w_MDL_'+plane+'.'+pngpdf, bbox_inches='tight')
+                plt.savefig(phase_output+'/average/Chroma_w_MDL_'+plane+'.'+pngpdf, bbox_inches='tight')
                 plt.close(num)
                 num=num+1
-
+            except:
+                print(" ********************************************\n",
+                    "Chromatic analysis:\n",
+                    '"I could not plot model chromaticity."\n',
+                    "********************************************")
+            
+            try:
                 plt.figure(figsize=(10,4.5))
                 plt.plot(dpp, poly(dpp)-poly(0.0), label = 'Fit', c='#ff7f0e')
                 plt.errorbar(dpp_meas, Q-poly(0.0), yerr=Q_err, fmt = 'o', ms=5.5, mec= '#d62728', mfc = 'None', capsize=4, c = '#d62728', label = 'Measurement')
@@ -687,7 +702,7 @@ def chromatic_analysis(model_path, phase_output):
                 else: plt.ylabel(r'$\Delta Q_{y}$', fontsize=size)
                 plt.xlim(1.1*min((dpp_meas)),1.1*max((dpp_meas)))
                 plt.tight_layout()
-                plt.savefig(phase_output+'/average_largerQlimit/Chroma_'+plane+'.'+pngpdf, bbox_inches='tight')
+                plt.savefig(phase_output+'/average/Chroma_'+plane+'.'+pngpdf, bbox_inches='tight')
                 plt.close(num)
             except:
                 print(" ********************************************\n",
