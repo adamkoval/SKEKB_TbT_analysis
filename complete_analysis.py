@@ -15,7 +15,7 @@ import sys
 # from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec
 from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis
 from func import asynch_cmap, bpm_calibration, calib_hist, freq_spec, chromatic_analysis
-from func import plot_optics
+from func import plot_optics, coupling_analysis
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required arguments')
@@ -199,6 +199,8 @@ if args.phase2 == True:
                    synched_harmonic_output, synched_phase_output, synched_sdds, 
                    ringID, args.group_runs, args.all_at_once)
     try: chromatic_analysis(model_path, synched_phase_output)    
+    except: pass
+    try: coupling_analysis(model_path, synched_sdds, synched_harmonic_output, synched_phase_output, all_at_once_flag)
     except: pass
 else: pass
 
