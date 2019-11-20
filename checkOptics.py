@@ -96,11 +96,12 @@ def plot_delta(direc, name, axis, S, delta, errdelta, pngpdf, num):
     if name == 'phase':
         plt.ylabel(r'$\Delta \mu_{x}$ $[2 \pi]$', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \mu_{y}$ $[2 \pi]$', fontsize=size) 
     if name == 'beta_amp':
-        plt.ylabel(r'$\Delta \beta_{x}^{amp}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{amp}$ [%]', fontsize=size) 
+        plt.ylabel(r'$\Delta \beta_{x}^{amp}$/$\beta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{amp}$ [%]', fontsize=size) 
     if name == 'beta_ph':
-        plt.ylabel(r'$\Delta \beta_{x}^{ph}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{ph}$ [%]', fontsize=size) 
+        plt.ylim(-25,25)
+        plt.ylabel(r'$\Delta \beta_{x}^{ph}$/$\beta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{ph}$ [%]', fontsize=size) 
     if name == 'disp':
-        plt.ylabel(r'$\Delta \eta_{x}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \eta_{y}$ [%]', fontsize=size) 
+        plt.ylabel(r'$\Delta \eta_{x}$/$\eta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \eta_{y}$ [%]', fontsize=size) 
     plt.xlim(0, 3.016)
     plt.tight_layout()
     plt.savefig(os.path.join(direc, name+'_'+axis+'_BEAT.'+pngpdf), bbox_inches='tight')
