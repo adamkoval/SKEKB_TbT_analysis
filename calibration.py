@@ -87,6 +87,11 @@ if __name__ == "__main__":
     df2 = pandas.DataFrame(df2, index=all_bpms)
     df2=df2.T
 
+    tfs.write(options.sdds + '../CalibrationSquareBPM_'+options.plane+'.tfs', df, save_index=True)
+    tfs.write(options.sdds + '../CalibrationErrorSquareBPM_'+options.plane+'.tfs', df, save_index=True)
+    #quit()
+
+
     # if options.plane == 'x':
     #     dd=pandas.DataFrame(dd, index=all_bpms)
     #     dd=dd.T
@@ -103,7 +108,7 @@ if __name__ == "__main__":
     for bpm in all_bpms:
         av_cal = [np.sqrt(df[bpm][i]) for i in range(len(all_sdds)) if not np.isnan(df[bpm][i]) and df[bpm][i] >= 0  ]
         av_cal_err = [np.sqrt(df2[bpm][i]) for i in range(len(all_sdds)) if not np.isnan(df2[bpm][i]) and df2[bpm][i] >= 0 ]
-        
+
         av_cal = reject_outliers(av_cal)
         av_cal_err = reject_outliers(av_cal_err)
 
