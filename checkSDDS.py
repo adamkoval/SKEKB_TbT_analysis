@@ -10,6 +10,7 @@ from optparse import OptionParser
 import numpy as np 
 import matplotlib.pyplot as plt
 import os
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 
@@ -33,24 +34,26 @@ if __name__ == "__main__":
             lines = fo.readlines()[11:]
         fo.close()
 
-        for ll in range(len(lines)):
-            axis = 'x' if lines[ll].split()[0] == '0' else 'y'
-            bpm = lines[ll].split()[1]
-            print(bpm)
-            orbit = [ float(lines[ll].split()[(3+i)]) for i in range(len(lines[ll].split()[3:])) if (lines[ll].split()[(3+i)] != '0') ]
-            turns = np.array(range(len(orbit)))
-            plt.figure(num, figsize=(fix, fiy))
-            plt.scatter(turns, orbit, s=5, marker='o')
-            plt.xlabel('Turn Number [-]', fontsize=size)
-            plt.ylabel('Orbit [mm]', fontsize=size)
-            plt.tick_params('both', labelsize=size)
-            plt.xlim(0,len(turns)-1)
-            plt.tight_layout()
-            plt.savefig(os.path.join(options.sdds, str(sdds[:-5])+'_'+str(bpm)+'_'+str(axis)+'.'+options.pngpdf))
-            plt.close(num)
-            num=num+1
+        with PdfPages(os.path.join(options.sdds, str(sdds)+'_PosPlot.pdf')) as pdf:
+            for ll in range(len(lines)):
+                axis = 'x' if lines[ll].split()[0] == '0' else 'y'
+                bpm = lines[ll].split()[1]
+                print(bpm)
+                orbit = [ float(lines[ll].split()[(3+i)]) for i in range(len(lines[ll].split()[3:])) if (lines[ll].split()[(3+i)] != '0') ]
+                turns = np.array(range(len(orbit)))
+                plt.figure(figsize=(fix, fiy))
+                plt.scatter(turns, orbit, s=5, marker='o')
+                plt.xlabel(str(bpm)+': Turn Number [-]', fontsize=size)
+                plt.ylabel('Orbit '+str(axis.upper())+' [mm]', fontsize=size)
+                plt.tick_params('both', labelsize=size)
+                plt.xlim(0,len(turns)-1)
+                plt.tight_layout()
+                #plt.savefig(os.path.join(options.sdds, str(sdds[:-5])+'_'+str(bpm)+'_'+str(axis)+'.'+options.pngpdf))
+                pdf.savefig()
+                plt.close()
+                #num=num+1
         
-        #quit()
+           # quit()
             
         
     
