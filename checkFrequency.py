@@ -14,9 +14,10 @@ import os
 # sys.path.append('/afs/cern.ch/work/j/jkeintze/public/Beta-Beat.src/Python_Classes4MAD')
 # import metaclass
 from func import read_bpms
+from matplotlib.backends.backend_pdf import PdfPages
 
 
-def read_spectrum(file):
+def read_spectrum(file, j):
     """
     Reads amps or freqs file and returns all entries.
     """
@@ -25,9 +26,11 @@ def read_spectrum(file):
         lines = fo.readlines()[3:]
     fo.close()
 
-    for j in range(len(lines[0].split())):
-        vals = vals + [float(lines[i].split()[j]) for i in range(len(lines))]
+    #for j in range(len(lines[0].split())):
+    vals = vals + [float(lines[i].split()[j]) for i in range(len(lines))]
 
+    #print(len(vals))
+    #quit()
     return np.array(vals)
 
 
@@ -39,11 +42,20 @@ def get_model_tunes(twiss):
 
     return Qx, Qy
 
+
+def get_harmonic_tunes(linx):
+    with open(linx) as fo:
+        lines = fo.readlines()
+    Q = float(lines[0].split()[3])
+    return Q
+
+
 if __name__ == "__main__":
 
-    fix = 10
-    fiy = 3.5
+    fix = 12
+    fiy = 4.5
     size = 20
+    size2 = 16
     
     parser = OptionParser()
     parser.add_option("-s", "--sdds",  dest="sdds", help="Folder of sdds files, leads to other folders.", action="store")
@@ -58,10 +70,116 @@ if __name__ == "__main__":
 
     Qx, Qy = get_model_tunes(model)
     
+    all_bpms=read_bpms(os.path.join(options.sdds, all_sdds[0]))
+    
+    for sdds in all_sdds:
+        Q_x = get_harmonic_tunes(os.path.join(harmonic_output, sdds+'.linx'))
+        Q_y = get_harmonic_tunes(os.path.join(harmonic_output, sdds+'.liny'))
 
-    for sdds in all_sdds[1:2]:
-        amp = read_spectrum(os.path.join(harmonic_output, sdds+'.amps'+options.axis))
-        freq = read_spectrum(os.path.join(harmonic_output, sdds+'.freqs'+options.axis))
+        with PdfPages(os.path.join(harmonic_output, str(sdds)+'_FreqPlot.pdf')) as pdf:
+            with open(os.path.join(harmonic_output, sdds+'.ampsx')) as fo:
+                lines = fo.readlines()
+            fo.close() 
+            with open(os.path.join(harmonic_output, sdds+'.ampsy')) as fy:
+                linesy = fy.readlines()
+            fy.close()  
+
+            bpmsx = lines[1].split()[1:]    
+            bpmsy = linesy[1].split()[1:]        
+            lines = lines[3:]
+
+            for bpm in all_bpms[:1]:
+                print(bpm)
+                if bpm in (bpmsx and bpmsy):
+                    indx = bpmsx.index(bpm) 
+                    indy = bpmsy.index(bpm)
+
+                    ampx = read_spectrum(os.path.join(harmonic_output, sdds+'.ampsx'), indx)
+                    freqx = read_spectrum(os.path.join(harmonic_output, sdds+'.freqsx'), indx)
+                    ampy = read_spectrum(os.path.join(harmonic_output, sdds+'.ampsy'), indy)
+                    freqy = read_spectrum(os.path.join(harmonic_output, sdds+'.freqsy'), indy)
+
+                    plt.figure(figsize=(fix, fiy))
+                    plt.yscale('log')
+
+                    plt.plot([Q_x, Q_x], [1e-10,1e10], ls='--', lw=1.2, c='grey')
+                    plt.text(Q_x, 1e0, r'(1,0)', fontsize=size2)
+                    plt.plot([Q_y, Q_y], [1e-10,1e10], ls='--', lw=1.2, c='grey')
+                    plt.text(Q_y, 1e0, r'(0,1)', fontsize=size2)
+
+                    plt.plot(1-freqx, ampx*1e3, lw=1, label='X')
+                    plt.plot(1-freqy, ampy*1e3, lw=1, label='Y')
+
+                    plt.xlabel(str(bpm)+ ': Fractional Tune [-]', fontsize=size)
+                    plt.ylabel('Amplitude [mm]', fontsize=size)
+                    plt.tick_params('both', labelsize=size)
+                    plt.legend(fontsize=size, ncol=3, fancybox=True,  numpoints=1, scatterpoints = 1)
+                    plt.ylim(1e-5, 5e0)
+                    plt.xlim(0.5, max(1-freqx))
+                    plt.tight_layout()
+                    pdf.savefig()
+                    plt.close()
+
+
+                elif bpm in bpmsx:
+                    indx = bpmsx.index(bpm)
+
+                    ampx = read_spectrum(os.path.join(harmonic_output, sdds+'.ampsx'), indx)
+                    freqx = read_spectrum(os.path.join(harmonic_output, sdds+'.freqsx'), indx)
+                    
+                    plt.figure(figsize=(fix, fiy))
+                    plt.yscale('log')
+                    plt.plot(1-freqx, ampx*1e3, lw=1, label=str(bpm)+' X')
+                    #plt.plot(1-freqy, ampy*1e3, lw=1, label='liny')
+                    plt.xlabel('Fractional Tune [-]', fontsize=size)
+                    plt.ylabel('Amplitude [mm]', fontsize=size)
+                    plt.tick_params('both', labelsize=size)
+                    plt.legend(fontsize=size, ncol=3, fancybox=True,  numpoints=1, scatterpoints = 1)
+                    #plt.ylim(5e2*min(amp*1e3), 1.3*max(amp*1e3))
+                    plt.xlim(0.5, max(1-freqx))
+                    plt.tight_layout()
+                    pdf.savefig()
+                    plt.close()
+                    
+                elif bpm in bpmsy:
+                    indy = bpmsy.index(bpm)
+
+                    ampy = read_spectrum(os.path.join(harmonic_output, sdds+'.ampsy'), indy)
+                    freqy = read_spectrum(os.path.join(harmonic_output, sdds+'.freqsy'), indy)
+
+                    plt.figure(figsize=(fix, fiy))
+                    plt.yscale('log')
+                    #plt.plot(1-freqx, ampx*1e3, lw=1, label=str(bpms[j])+' linx')
+                    plt.plot(1-freqy, ampy*1e3, lw=1, label=str(bpm)+' Y')
+                    plt.xlabel('Fractional Tune [-]', fontsize=size)
+                    plt.ylabel('Amplitude [mm]', fontsize=size)
+                    plt.tick_params('both', labelsize=size)
+                    plt.legend(fontsize=size, ncol=3, fancybox=True,  numpoints=1, scatterpoints = 1)
+                    #plt.ylim(5e2*min(amp*1e3), 1.3*max(amp*1e3))
+                    plt.xlim(0.5, max(1-freqx))
+                    plt.tight_layout()
+                    pdf.savefig()
+                    plt.close()
+
+                else:
+                    plt.figure(figsize=(fix, fiy))
+                    plt.yscale('log')
+                    #plt.plot(1-freqx, ampx*1e3, lw=1, label=str(bpms[j])+' linx')
+                    #plt.plot(1-freqy, ampy*1e3, lw=1, label=str(bpm)+' liny')
+                    plt.plot([0.6,0.6], [1,1], c='white', label=str(bpm))
+                    plt.xlabel('Fractional Tune [-]', fontsize=size)
+                    plt.ylabel('Amplitude [mm]', fontsize=size)
+                    plt.tick_params('both', labelsize=size)
+                    plt.legend(fontsize=size, ncol=3, fancybox=True,  numpoints=1, scatterpoints = 1)
+                    #plt.ylim(5e2*min(amp*1e3), 1.3*max(amp*1e3))
+                    plt.xlim(0.5, max(1-freqx))
+                    plt.tight_layout()
+                    pdf.savefig()
+                    plt.close()
+                    
+
+    quit()
+
     
 
     num=1

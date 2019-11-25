@@ -590,15 +590,15 @@ def calib_hist(python_exe, synched_sdds, phase_output, when='before'):
 
 def freq_spec(python_exe, sdds, model):
     """
-    Function to call checkFrequency.py to make plot of frequency spectrum.
+    Function to call checkFrequency.py to make plot of frequency spectrum for each BPM.
     """
-    for plane in ['x', 'y']:
-        for form in ['png', 'pdf']:
-            os.system(python_exe + ' checkFrequency.py' +
-                        ' --sdds ' + sdds +
-                        ' --model ' + model +
-                        ' --axis ' + plane + 
-                        ' --pngpdf ' + form )
+    # for plane in ['x']:
+    #     for form in ['png']:
+    os.system(python_exe + ' checkFrequency.py' +
+                ' --sdds ' + sdds +
+                ' --model ' + model )
+                # ' --axis ' + plane + 
+                # ' --pngpdf ' + form )
 
 
 def chromatic_analysis(model_path, phase_output):
