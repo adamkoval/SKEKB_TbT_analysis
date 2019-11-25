@@ -205,7 +205,7 @@ if args.phase2 == True:
                    ringID, args.group_runs, args.all_at_once)
     try: chromatic_analysis(model_path, synched_phase_output)    
     except: pass
-    try: coupling_analysis(model_path, synched_sdds, synched_harmonic_output, synched_phase_output, all_at_once_flag)
+    try: coupling_analysis(model_path, synched_sdds, synched_harmonic_output, synched_phase_output, args.all_at_once)
     except: pass
 else: pass
 

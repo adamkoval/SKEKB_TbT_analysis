@@ -715,16 +715,17 @@ def chromatic_analysis(model_path, phase_output):
 
 def coupling_analysis(model_path, synched_sdds, synched_harmonic_output, synched_phase_output, all_at_once_flag):
     """
-    Computes f1010 and writes them to an output file.
+    Computes f1001 and writes them to an output file.
     WARNING: ONLY TESTED FOR PYTHON 3!
     """
     all_bpms = read_bpms(os.path.join(synched_sdds, os.listdir(synched_sdds)[0]))
+    all_sdds = [sd for sd in os.listdir(synched_sdds) if 'sdds' in sd]
 
     if all_at_once_flag is not True:
-        for sdds in os.listdir(synched_sdds):                        
+        for sdds in all_sdds:                        
             linx = os.path.join(synched_harmonic_output, sdds+'.linx')
             liny = os.path.join(synched_harmonic_output, sdds+'.liny')
-
+            
             with open(linx) as fx: linesx=fx.readlines()[7:]
             fx.close()
             with open(liny) as fy: linesy=fy.readlines()[7:]
@@ -749,25 +750,25 @@ def coupling_analysis(model_path, synched_sdds, synched_harmonic_output, synched
                     AMP_10V.insert(i, 1)
                     ERRAMP_10V.insert(i, 1)
                     false_bpm.append(b)
-            print(false_bpm)
+            #print(false_bpm)
             AMP_01H = np.array(AMP_01H)
             ERRAMP_01H = np.array(ERRAMP_01H)
             AMP_10V = np.array(AMP_10V)
             ERRAMP_10V = np.array(ERRAMP_10V)
             
-            av_f1010 = 0.5*((AMP_01H*AMP_10V)**0.5)
-            err_av_f1010 = ( (ERRAMP_01H*AMP_10V)**2 / (16*(AMP_01H*AMP_10V)) + (ERRAMP_10V*AMP_01H)**2 /(16*(AMP_01H*AMP_10V)))**0.5
+            av_f1001 = 0.5*((AMP_01H*AMP_10V)**0.5)
+            err_av_f1001 = ( (ERRAMP_01H*AMP_10V)**2 / (16*(AMP_01H*AMP_10V)) + (ERRAMP_10V*AMP_01H)**2 /(16*(AMP_01H*AMP_10V)))**0.5
                         
-            f1010_ff = os.path.join(synched_phase_output, sdds+'/f1010.tfs')
-            f1010 = open(f1010_ff, 'w')
-            f1010.write('*BPM\t\t\t\t|F1010|\t\t\t\t\t\tERR|F1010|\n')
-            f1010.write('$ %s \t\t\t\t %f \t\t\t\t\t\t %f \n')
+            f1001_ff = os.path.join(synched_phase_output, sdds+'/f1001.tfs')
+            f1001 = open(f1001_ff, 'w')
+            f1001.write('*BPM\t\t\t\t|F1001|\t\t\t\t\t\tERR|F1001|\n')
+            f1001.write('$ %s \t\t\t\t %f \t\t\t\t\t\t %f \n')
             for i, bpm in enumerate(all_bpms):
                 if bpm in false_bpm:
-                    f1010.write(all_bpms[i] + '\t\t\t' + str(0.0)+'\t\t\t'+ str(0.0)+'\n')
+                    f1001.write(all_bpms[i] + '\t\t\t' + str(0.0)+'\t\t\t'+ str(0.0)+'\n')
                 else:
-                    f1010.write(all_bpms[i] + '\t\t\t' + str(av_f1010[i])+'\t\t\t'+ str(err_av_f1010[i])+'\n')
-            f1010.close()
+                    f1001.write(all_bpms[i] + '\t\t\t' + str(av_f1001[i])+'\t\t\t'+ str(err_av_f1001[i])+'\n')
+            f1001.close()
 
     if all_at_once_flag == True:
         pass                    
