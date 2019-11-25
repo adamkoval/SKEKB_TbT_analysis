@@ -3,7 +3,7 @@ Main script which allows the user to utilise desired
 functions of this analysis package.
 
 Author: Jacqueline Keintzel , Adam Koval
-Date: 24/10/2019
+Date: 25/11/2019
 With essential contributions from
 Andreas Wegscheider, Renjun Yang & Paul Thrane.
 """
@@ -15,7 +15,7 @@ import sys
 # from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec
 from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis
 from func import asynch_cmap, bpm_calibration, calib_hist, freq_spec, chromatic_analysis
-from func import plot_optics, coupling_analysis
+from func import plot_optics, coupling_analysis, sdds_turns
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required arguments')
@@ -36,6 +36,9 @@ parser.add_argument('--all_at_once', '-all',
 parser.add_argument('--harmonic1', '-h1',
                     action='store_true',
                     help='Harmonic analysis without knowledge of BPM synch. This is enough to obtain tunes.')
+parser.add_argument('--plotsdds1', '-ps1',
+                    action='store_true',
+                    help='Plotting of raw sdds files.')        
 parser.add_argument('--plotfreq1', '-pf1',
                     action='store_true',
                     help='Plotting of frequency spectrum.')
@@ -154,9 +157,11 @@ if args.harmonic1 == True:
                       nturns, str(0.04), lattice, gsad)
 else: pass
 
+if args.plotsdds1 == True:
+    sdds_turns(python_exe, unsynched_sdds)
+else: pass
 
 if args.plotfreq1 == True:
-    # damping_turns(python_exe, unsynched_sdds)
     freq_spec(python_exe, unsynched_sdds, model_path)
 else: pass
 

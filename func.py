@@ -789,16 +789,14 @@ def plot_optics(python_exe, phase_output, model, ringID):
                         ' --pngpdf ' + pngpdf )
 
 
-# def damping_turns(python_exe, sdds):
-#     """
-#     Function to call checkExcitation.py to make plot of amplitude over turns.
-#     """
-#     for plane in ['x']:
-#         for form in ['png']:
-#             os.system(python_exe + ' checkExcitation.py' +
-#                         ' --sdds ' + sdds +
-#                         ' --axis ' + plane + 
-#                         ' --pngpdf ' + form )
+def sdds_turns(python_exe, sdds):
+    """
+    Function to call checkSDDS.py to make plot of measured beam positions over turns.
+    """
+    os.system(python_exe + ' checkSDDS.py' +
+                ' --sdds ' + sdds )
+                # ' --axis ' + plane + 
+                # ' --pngpdf ' + form )
 
 
 # ====================================================
