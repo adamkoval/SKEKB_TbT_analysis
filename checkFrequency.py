@@ -47,7 +47,8 @@ def get_harmonic_tunes(linx):
     with open(linx) as fo:
         lines = fo.readlines()
     Q = float(lines[0].split()[3])
-    return Q
+    Qnat = float(lines[2].split()[3])
+    return Q, Qnat
 
 
 if __name__ == "__main__":
@@ -67,15 +68,18 @@ if __name__ == "__main__":
     all_sdds = [sd for sd in os.listdir(options.sdds) if 'sdds' in sd]
     harmonic_output = os.path.join(options.sdds[:-15], 'unsynched_harmonic_output')
     model = os.path.join(options.model, 'twiss.dat')
-
+    #all_sdds = ['HER_2019_11_26_15_23_12.sdds']
     Qx, Qy = get_model_tunes(model)
     
     all_bpms=read_bpms(os.path.join(options.sdds, all_sdds[0]))
-    
-    for sdds in all_sdds:
-        Q_x = get_harmonic_tunes(os.path.join(harmonic_output, sdds+'.linx'))
-        Q_y = get_harmonic_tunes(os.path.join(harmonic_output, sdds+'.liny'))
-
+    # print(all_sdds)
+    # quit()
+    for sdds in all_sdds[20:21]:
+        Q_x, Q_x_nat = get_harmonic_tunes(os.path.join(harmonic_output, sdds+'.linx'))
+        Q_y, Q_y_nat = get_harmonic_tunes(os.path.join(harmonic_output, sdds+'.liny'))
+        print(sdds)
+        #print(os.path.join(harmonic_output, str(sdds)+'_FreqPlot.pdf'))
+        #quit()
         with PdfPages(os.path.join(harmonic_output, str(sdds)+'_FreqPlot.pdf')) as pdf:
             with open(os.path.join(harmonic_output, sdds+'.ampsx')) as fo:
                 lines = fo.readlines()
@@ -88,9 +92,9 @@ if __name__ == "__main__":
             bpmsy = linesy[1].split()[1:]        
             lines = lines[3:]
 
-            for bpm in all_bpms[:1]:
+            for bpm in all_bpms[:10]:
                 print(bpm)
-                if bpm in (bpmsx and bpmsy):
+                if (bpm in bpmsx) and (bpm in bpmsy):
                     indx = bpmsx.index(bpm) 
                     indy = bpmsy.index(bpm)
 
@@ -100,12 +104,21 @@ if __name__ == "__main__":
                     freqy = read_spectrum(os.path.join(harmonic_output, sdds+'.freqsy'), indy)
 
                     plt.figure(figsize=(fix, fiy))
+                    print(bpm)
                     plt.yscale('log')
 
-                    plt.plot([Q_x, Q_x], [1e-10,1e10], ls='--', lw=1.2, c='grey')
-                    plt.text(Q_x, 1e0, r'(1,0)', fontsize=size2)
-                    plt.plot([Q_y, Q_y], [1e-10,1e10], ls='--', lw=1.2, c='grey')
-                    plt.text(Q_y, 1e0, r'(0,1)', fontsize=size2)
+                    # if (Q_x - Q_x_nat) > 1e-5:
+                    #     plt.plot([Q_x, Q_x], [1e-10,1e10], ls='--', lw=1.2, c='grey')
+                    #     plt.text(Q_x, 1e0, r'(1,0)_{D}', fontsize=size2)
+                    # plt.plot([Q_x_nat, Q_x_nat], [1e-10,1e10], ls='--', lw=1.2, c='grey')
+                    # plt.text(Q_x_nat, 0.1e0, r'(1,0)', fontsize=size2)
+                    
+                    # if (Q_y - Q_y_nat) > 1e-5:
+                    #     plt.plot([Q_y, Q_y], [1e-10,1e10], ls='--', lw=1.2, c='grey')
+                    #     plt.text(Q_y, 1e0, r'(0,1)_{D}', fontsize=size2)
+                    # plt.plot([Q_y_nat, Q_y_nat], [1e-10,1e10], ls='--', lw=1.2, c='grey')
+                    # plt.text(Q_y_nat, 0.1e0, r'(0,1)', fontsize=size2)
+                    
 
                     plt.plot(1-freqx, ampx*1e3, lw=1, label='X')
                     plt.plot(1-freqy, ampy*1e3, lw=1, label='Y')
@@ -117,6 +130,7 @@ if __name__ == "__main__":
                     plt.ylim(1e-5, 5e0)
                     plt.xlim(0.5, max(1-freqx))
                     plt.tight_layout()
+                    plt.show()
                     pdf.savefig()
                     plt.close()
 

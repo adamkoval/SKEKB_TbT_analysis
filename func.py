@@ -161,6 +161,25 @@ def sdds_conv(input_data_dir, file_dict, main_output_dir, sdds_dir,
         do_stuff()
 
 
+def cut_large_sdds(python_exe, sdds_path, file_dict):
+    all_sdds = [ss for ss in os.listdir(sdds_path) if '.sdds' in ss and not 'cut' in ss]
+    sizes = [float(os.path.getsize(os.path.join(sdds_path, ss))) for ss in all_sdds ]
+    turns50k = [i for i in range(len(sizes)) if sizes[i]>1e8 ]
+    files50k = [all_sdds[i] for i in turns50k]
+
+    starts = np.arange(0, 50000, 5000)
+    ends = np.arange(5000, 55000, 5000)
+
+    for ff in files50k:
+        for start, end in zip(starts, ends):
+            os.system(str(python_exe)+ ' cutSDDS.py' +
+                        ' --file ' + os.path.join(sdds_path, ff) +
+                        ' --output ' + sdds_path +
+                        ' --start ' + str(start) +
+                        ' --end ' + str(end) )
+            
+
+
 def get_LINE(lattice, gsad):
     """
     Function to extract name of LINE in lattice file.
@@ -262,10 +281,21 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
     model_tuney = lines[1].split()[2]
     model_tunex = '0.' + re.match('[0-9]+\.([0-9]+)', model_tunex).group(1)
     model_tuney = '0.' + re.match('[0-9]+\.([0-9]+)', model_tuney).group(1)
+    # print(model_tuney)
     drv_tunex = model_tunex
     drv_tuney = model_tuney
+    # drv_tunex = model_tunex
+    # drv_tuney = '0.592' #LER
+    
+    # HER
+    # drv_tunex = '0.528'
+    # drv_tuney = '0.570'
+    # model_tuney = '0.5759700'
+    # model_tunex = '0.5297400'
+    
     max_peak = '5.0'
     tunez = '0'
+    # tune_range = '0.0005'
     if not os.path.exists(harmonic_output_path):
         os.system('mkdir ' + harmonic_output_path) 
 
@@ -278,6 +308,23 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
               '"Working on file ' + str(i+1) + '/' + str(len(sdds_files)) + ': ' + str(run) + '"\n',
               "********************************************")
         if py_version > 2:
+            # print(str(python_exe) +' '
+            #         +str(BetaBeatsrc_path) + 'hole_in_one.py'
+            #         ' --harpy'
+            #         ' --files ' + os.path.join(sdds_path, run) +
+            #         ' --outputdir ' + harmonic_output_path + 
+            #         ' --model '+ model_path + 'twiss.dat'
+            #         ' --tunes '+ drv_tunex + ' ' + drv_tuney + ' ' + tunez +
+            #         ' --nattunes ' + model_tunex + ' ' + model_tuney + ' ' + tunez+
+            #         ' --turns ' + tunez + ' ' + nturns +
+            #         ' --tolerance ' + tune_range +
+            #         ' --unit mm' # ("m", "cm", "mm", "um")
+            #         ' --keep_exact_zeros'
+            #         ' --to_write spectra bpm_summary lin full_spectra'
+            #         ' --clean'
+            #         ' --max_peak ' + max_peak +
+            #         ' --tune_clean_limit 1e-4')
+            # quit()
             os.system(str(python_exe) +' '
                     +str(BetaBeatsrc_path) + 'hole_in_one.py'
                     ' --harpy'
@@ -290,7 +337,7 @@ def harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                     ' --tolerance ' + tune_range +
                     ' --unit mm' # ("m", "cm", "mm", "um")
                     ' --keep_exact_zeros'
-                    ' --to_write spectra bpm_summary lin'
+                    ' --to_write spectra bpm_summary lin full_spectra'
                     ' --clean'
                     ' --max_peak ' + max_peak +
                     ' --tune_clean_limit 1e-4')        
@@ -365,6 +412,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
     if not os.path.exists(phase_output_path):
         os.system('mkdir ' + phase_output_path)
     sdds_files = [ff for ff in os.listdir(sdds_path) if '.sdds' in ff ]
+    #sdds_files = [ff for ff in sdds_files if not 'cut' in ff]
     
     if (group_flag or all_at_once_flag) is not True:
         for i, run in enumerate(sdds_files):
@@ -465,6 +513,7 @@ def phase_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
             for ff in sdds_files:
                 allff = allff + os.path.join(harmonic_output_path,ff) + ','
         allff = allff[:-1]
+      
         if py_version > 2:
             os.system(str(python_exe)+' '
                     +str(BetaBeatsrc_path)+'hole_in_one.py'

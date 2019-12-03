@@ -15,7 +15,7 @@ import sys
 # from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis, asynch_cmap, bpm_calibration, calib_hist, freq_spec
 from func import read_pathnames, sdds_conv, harmonic_analysis, phase_analysis, asynch_analysis
 from func import asynch_cmap, bpm_calibration, calib_hist, freq_spec, chromatic_analysis
-from func import plot_optics, coupling_analysis, sdds_turns
+from func import plot_optics, coupling_analysis, sdds_turns, cut_large_sdds
 
 parser = argparse.ArgumentParser()
 required = parser.add_argument_group('required arguments')
@@ -152,6 +152,8 @@ if args.harmonic1 == True:
     sdds_conv(input_data, file_dict, main_output, unsynched_sdds,
               lattice, gsad, ringID, args.debug, kickax, asynch_info=False)
 
+    cut_large_sdds(python_exe, unsynched_sdds, file_dict)
+
     harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                       unsynched_harmonic_output, unsynched_sdds,
                       nturns, str(0.04), lattice, gsad)
@@ -191,6 +193,8 @@ else: pass
 if args.harmonic2 == True:
     sdds_conv(input_data, file_dict, main_output, synched_sdds,
               lattice, gsad, ringID, args.debug, kickax, asynch_info=True)
+
+    cut_large_sdds(python_exe, synched_sdds, file_dict)
 
     harmonic_analysis(py_version, python_exe, BetaBeatsrc_path, model_path,
                       synched_harmonic_output, synched_sdds,
