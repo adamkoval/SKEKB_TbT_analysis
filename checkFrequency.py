@@ -68,19 +68,18 @@ if __name__ == "__main__":
     all_sdds = [sd for sd in os.listdir(options.sdds) if 'sdds' in sd]
     harmonic_output = os.path.join(options.sdds[:-15], 'unsynched_harmonic_output')
     model = os.path.join(options.model, 'twiss.dat')
-    #all_sdds = ['HER_2019_11_26_15_23_12.sdds']
     Qx, Qy = get_model_tunes(model)
     
     all_bpms=read_bpms(os.path.join(options.sdds, all_sdds[0]))
     # print(all_sdds)
     # quit()
-    for sdds in all_sdds[20:21]:
+    for sdds in all_sdds:
         Q_x, Q_x_nat = get_harmonic_tunes(os.path.join(harmonic_output, sdds+'.linx'))
         Q_y, Q_y_nat = get_harmonic_tunes(os.path.join(harmonic_output, sdds+'.liny'))
         print(sdds)
         #print(os.path.join(harmonic_output, str(sdds)+'_FreqPlot.pdf'))
         #quit()
-        with PdfPages(os.path.join(harmonic_output, str(sdds)+'_FreqPlot.pdf')) as pdf:
+        with PdfPages(os.path.join(harmonic_output, str(sdds[:-5])+'_FreqPlot.pdf')) as pdf:
             with open(os.path.join(harmonic_output, sdds+'.ampsx')) as fo:
                 lines = fo.readlines()
             fo.close() 
@@ -92,7 +91,7 @@ if __name__ == "__main__":
             bpmsy = linesy[1].split()[1:]        
             lines = lines[3:]
 
-            for bpm in all_bpms[:10]:
+            for bpm in all_bpms:
                 print(bpm)
                 if (bpm in bpmsx) and (bpm in bpmsy):
                     indx = bpmsx.index(bpm) 
@@ -104,7 +103,6 @@ if __name__ == "__main__":
                     freqy = read_spectrum(os.path.join(harmonic_output, sdds+'.freqsy'), indy)
 
                     plt.figure(figsize=(fix, fiy))
-                    print(bpm)
                     plt.yscale('log')
 
                     # if (Q_x - Q_x_nat) > 1e-5:
@@ -143,9 +141,9 @@ if __name__ == "__main__":
                     
                     plt.figure(figsize=(fix, fiy))
                     plt.yscale('log')
-                    plt.plot(1-freqx, ampx*1e3, lw=1, label=str(bpm)+' X')
+                    plt.plot(1-freqx, ampx*1e3, lw=1, label='X')
                     #plt.plot(1-freqy, ampy*1e3, lw=1, label='liny')
-                    plt.xlabel('Fractional Tune [-]', fontsize=size)
+                    plt.xlabel(str(bpm)+ ': Fractional Tune [-]', fontsize=size)
                     plt.ylabel('Amplitude [mm]', fontsize=size)
                     plt.tick_params('both', labelsize=size)
                     plt.legend(fontsize=size, ncol=3, fancybox=True,  numpoints=1, scatterpoints = 1)
@@ -164,13 +162,13 @@ if __name__ == "__main__":
                     plt.figure(figsize=(fix, fiy))
                     plt.yscale('log')
                     #plt.plot(1-freqx, ampx*1e3, lw=1, label=str(bpms[j])+' linx')
-                    plt.plot(1-freqy, ampy*1e3, lw=1, label=str(bpm)+' Y')
-                    plt.xlabel('Fractional Tune [-]', fontsize=size)
+                    plt.plot(1-freqy, ampy*1e3, lw=1, label='Y')
+                    plt.xlabel(str(bpm)+ ': Fractional Tune [-]', fontsize=size)
                     plt.ylabel('Amplitude [mm]', fontsize=size)
                     plt.tick_params('both', labelsize=size)
                     plt.legend(fontsize=size, ncol=3, fancybox=True,  numpoints=1, scatterpoints = 1)
                     #plt.ylim(5e2*min(amp*1e3), 1.3*max(amp*1e3))
-                    plt.xlim(0.5, max(1-freqx))
+                    plt.xlim(0.5, max(1-freqy))
                     plt.tight_layout()
                     pdf.savefig()
                     plt.close()
@@ -180,13 +178,13 @@ if __name__ == "__main__":
                     plt.yscale('log')
                     #plt.plot(1-freqx, ampx*1e3, lw=1, label=str(bpms[j])+' linx')
                     #plt.plot(1-freqy, ampy*1e3, lw=1, label=str(bpm)+' liny')
-                    plt.plot([0.6,0.6], [1,1], c='white', label=str(bpm))
-                    plt.xlabel('Fractional Tune [-]', fontsize=size)
+                    plt.plot([0.6,0.6], [1,1], c='white')
+                    plt.xlabel(str(bpm)+ ': Fractional Tune [-]', fontsize=size)
                     plt.ylabel('Amplitude [mm]', fontsize=size)
                     plt.tick_params('both', labelsize=size)
                     plt.legend(fontsize=size, ncol=3, fancybox=True,  numpoints=1, scatterpoints = 1)
                     #plt.ylim(5e2*min(amp*1e3), 1.3*max(amp*1e3))
-                    plt.xlim(0.5, max(1-freqx))
+                    plt.xlim(0.5, 1.0)
                     plt.tight_layout()
                     pdf.savefig()
                     plt.close()
