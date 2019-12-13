@@ -36,6 +36,26 @@ def read_beta_ph(ff):
     return S, deltabet, errdeltabet
 
 
+def read_beta_cod(ff):
+    with open(ff) as f: lines=f.readlines()
+    f.close()
+    S = [float(lines[3+i].split()[1]) for i in range(len(lines[3:]))]
+    deltabetx = np.array([float(lines[3+i].split()[3]) for i in range(len(lines[3:]))])*100
+    deltabety = np.array([float(lines[3+i].split()[5]) for i in range(len(lines[3:]))])*100
+
+    return S, deltabetx, deltabety
+
+
+def read_disp_cod(ff):
+    with open(ff) as f: lines=f.readlines()
+    f.close()
+    S = [float(lines[3+i].split()[1]) for i in range(len(lines[3:]))]
+    dx = np.array([float(lines[3+i].split()[2]) for i in range(len(lines[3:]))])
+    dy = np.array([float(lines[3+i].split()[4]) for i in range(len(lines[3:]))])
+
+    return S, dx, dy
+
+
 def read_norm_disp(ff):
     with open(ff) as f: lines=f.readlines()
     f.close()
@@ -93,15 +113,18 @@ def plot_delta(direc, name, axis, S, delta, errdelta, pngpdf, num):
     plt.errorbar(np.array(S)*1e-3, delta, yerr=errdelta, fmt = 'o', ms=mark, mec= '#d62728', mfc = 'None', capsize=caps, c = '#d62728', label = 'Measurement')
     plt.tick_params('both', labelsize=size)
     plt.xlabel('S [km]', fontsize=size)
+    if name == 'COD_beta':
+        #plt.ylim(-30,30)
+        plt.ylabel(r'$\Delta \beta_{x}^{cod}$/$\beta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{cod}$/$\beta_{y}^{mdl}$ [%]', fontsize=size) 
     if name == 'phase':
         plt.ylabel(r'$\Delta \mu_{x}$ $[2 \pi]$', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \mu_{y}$ $[2 \pi]$', fontsize=size) 
     if name == 'beta_amp':
-        plt.ylabel(r'$\Delta \beta_{x}^{amp}$/$\beta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{amp}$ [%]', fontsize=size) 
+        plt.ylabel(r'$\Delta \beta_{x}^{amp}$/$\beta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{amp}$/$\beta_{y}^{mdl}$ [%]', fontsize=size) 
     if name == 'beta_ph':
-        plt.ylim(-25,25)
-        plt.ylabel(r'$\Delta \beta_{x}^{ph}$/$\beta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{ph}$ [%]', fontsize=size) 
+        #plt.ylim(-25,25)
+        plt.ylabel(r'$\Delta \beta_{x}^{ph}$/$\beta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \beta_{y}^{ph}$/$\beta_{y}^{mdl}$ [%]', fontsize=size) 
     if name == 'disp':
-        plt.ylabel(r'$\Delta \eta_{x}$/$\eta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \eta_{y}$ [%]', fontsize=size) 
+        plt.ylabel(r'$\Delta \eta_{x}$/$\eta_{x}^{mdl}$ [%]', fontsize=size) if axis =='x' else plt.ylabel(r'$\Delta \eta_{y}$/$\eta_{y}^{mdl}$ [%]', fontsize=size) 
     plt.xlim(0, 3.016)
     plt.tight_layout()
     plt.savefig(os.path.join(direc, name+'_'+axis+'_BEAT.'+pngpdf), bbox_inches='tight')
@@ -130,6 +153,8 @@ def plot_abs(direc, name, axis, S, Smdl, val, errval, valmdl, pngpdf, num):
         plt.ylabel(r'$\eta_{x}^{(2)}$ [m]', fontsize=size) if axis =='x' else plt.ylabel(r'$\eta_{y}^{(2)}$ [m]', fontsize=size)
     if name == 'norm_disp':
         plt.ylabel(r'$\eta_{n,x}$ [$\sqrt{\mathregular{m}}$]', fontsize=size) if axis =='x' else plt.ylabel(r'$\eta_{n,y}$ [$\sqrt{\mathregular{m}}$]', fontsize=size) 
+    if name == 'COD_disp':
+        plt.ylabel(r'$\eta_{x}^{cod}$ [m]', fontsize=size) if axis =='x' else plt.ylabel(r'$\eta_{y}^{cod}$ [m]', fontsize=size) 
     plt.xlim(0, 3.016)
     plt.legend(loc = 9, ncol = 2, fontsize=size, bbox_to_anchor=(0.5, 1.42), fancybox=True,  numpoints=1, scatterpoints = 1)
     plt.tight_layout()
@@ -149,7 +174,7 @@ def main():
     parser.add_option("-p", "--pngpdf",  dest="pngpdf", help="Output format, PNG oder PDF")
     (options, args) = parser.parse_args()
 
-
+    
     if not os.path.exists(os.path.join(options.dir, 'average')): 
         print(" ********************************************\n",
                 "Plot optics:\n",
@@ -160,11 +185,26 @@ def main():
 
     num = 1
 
-    files = [ff for ff in os.listdir(os.path.join(options.dir, 'average')) if (options.axis+'.tfs') in ff]
-    # print(files)
+    files = [ff for ff in os.listdir(os.path.join(options.dir, 'average')) if ('.tfs') in ff]
+    print(files)
 
     Smdl, betxmdl, betymdl, dxmdl, dymdl, xmdl, ymdl = read_model(os.path.join(options.model, 'twiss.dat'))
+   
 
+    if 'COD_betxy_muxy.tfs' in files:
+        S, deltabetx, deltabety = read_beta_cod(os.path.join(options.dir, 'average/COD_betxy_muxy.tfs'))
+        if options.axis == 'x':
+            num = plot_delta(os.path.join(options.dir, 'average'), 'COD_beta', options.axis, S, deltabetx, [0]*len(deltabetx), options.pngpdf, num)
+        else: 
+            num = plot_delta(os.path.join(options.dir, 'average'), 'COD_beta', options.axis, S, deltabety, [0]*len(deltabety), options.pngpdf, num)
+
+    if 'COD_dxy.tfs' in files:
+        S, dx, dy = read_disp_cod(os.path.join(options.dir, 'average/COD_dxy.tfs'))
+        if options.axis == 'x':
+            num = plot_abs(os.path.join(options.dir, 'average'), 'COD_disp', options.axis, S, Smdl, dx, [0]*len(dx), dxmdl, options.pngpdf, num)
+        else: 
+            num = plot_abs(os.path.join(options.dir, 'average'), 'COD_disp', options.axis, S, Smdl, dy, [0]*len(dx), dymdl, options.pngpdf, num)
+    
     if 'phase_'+options.axis+'.tfs' in files:
         S, deltaph, errdeltaph = read_phase(os.path.join(options.dir, 'average/phase_'+options.axis+'.tfs'))
         num = plot_delta(os.path.join(options.dir, 'average'), 'phase', options.axis, S, deltaph, errdeltaph, options.pngpdf, num)

@@ -87,13 +87,15 @@ if options.betafile is not None:
     muy = []
     nextone = False
 
+
+
     for i in range(len(beta_sad)):
         split_left = beta_sad[i].split('{')
         for j in range(len(split_left)):
             split_right = split_left[j].split('}')
             for k in range(len(split_right)):
                 split_colon = split_right[k].split(',')
-                if 'MQ' in split_colon[0] and len(split_colon)>4:
+                if 'MQ' in split_colon[0] and len(split_colon)>5:
                     bpms.append(str(split_colon[0])[1:-1])
                     betx.append(float(split_colon[1]))
                     bety.append(float(split_colon[2]))
